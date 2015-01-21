@@ -171,7 +171,7 @@ public class PlayerCar : MonoBehaviour {
 	void FixedUpdate () 
 	{
 		if (mySpeed < maxSpeed)
-						carRidgidbody.AddForce (engineForce * Time.deltaTime);
+						carRidgidbody.AddForce (engineForce * v * Time.deltaTime);
 		if (mySpeed > maxSpeedToTurn)
 						carRidgidbody.AddTorque (turnVec * Time.deltaTime);
 				else if (mySpeed < maxSpeedToTurn)
