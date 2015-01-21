@@ -38,7 +38,7 @@ public class carMove : MonoBehaviour
 				updateEngineForceLocation ();
 				CachingFun ();
 				FindAndSetUpWheels ();
-	}
+		}
 
 		void OnDrawGizmosSelected ()
 		{
@@ -46,6 +46,19 @@ public class carMove : MonoBehaviour
 				Gizmos.DrawSphere (centerOfGravity, 0.1f);
 				Gizmos.color = Color.red;
 				Gizmos.DrawSphere (forceLocation, 0.1f);
+
+				Color color;
+				color = Color.green;
+				// local up
+				DrawHelperAtCenter (this.transform.up, color, v * mySpeed + 0.1f);
+
+		}
+
+		private void DrawHelperAtCenter (Vector3 direction, Color color, float scale)
+		{
+				Gizmos.color = color;
+				Vector3 destination = transform.position + direction * scale;
+				Gizmos.DrawLine (transform.position, destination);
 		}
 
 		void CachingFun ()
@@ -76,7 +89,7 @@ public class carMove : MonoBehaviour
 
 		void FindAndSetUpWheels ()
 		{
-		Debug.Log ("test");
+				Debug.Log ("test");
 				foreach (Transform child in transform) {
 						if (child.gameObject.tag == "VisualWheel") {																		//our these the wheels we are looking for
 								if (child.gameObject.name.ToString ().Contains ("f") || child.gameObject.name.ToString ().Contains ("F")) {	//our we a front wheel
@@ -135,7 +148,7 @@ public class carMove : MonoBehaviour
 				return new Vector3 (newX / amountTested, newY / amountTested, newZ / amountTested);
 		}
 
-		void updateEngineForceLocation ()
+		void updateEngineForceLocation ()		//change to update both engineForce and gripLocation
 		{
 				List<Vector3> currentlyAliveWheels = new List<Vector3> ();
 				if (myDrive == typeOfDrive.FrontWheelDrive) {
@@ -165,7 +178,7 @@ public class carMove : MonoBehaviour
 	
 		void carPhysicsUpdate ()
 		{
-				//grab all the physics info we need to calculate everything
+				/*	//grab all the physics info we need to calculate everything
 				Vector3 myRight = carTransform.right;
 				//we find our velocity
 				Vector3 velo = carRidgidbody.velocity;
@@ -178,27 +191,24 @@ public class carMove : MonoBehaviour
 				//figure out our velocity without y movement - our flat velocity
 				Vector3 flatDir = Vector3.Normalize (tmpVec);
 				//calculate engine force with flat vector and acceration
-				engineForce = (flatDir * (enginePower) * carMass);	
+				engineForce = (flatDir * (enginePower) * carMass);	*/
 		}
 		// Update is called once per frame
 		void Update ()
 		{
 				h = Input.GetAxis ("Horizontal");
-				v = Input.GetAxis ("Vertical");
-				updateEngineForceLocation ();
-				carPhysicsUpdate ();
+				v = Input.GetAxis ("Throttle");
+				//updateEngineForceLocation ();
+				mySpeed = carRidgidbody.velocity.magnitude;
 		}
 
 		void FixedUpdate ()
 		{
-				//if (mySpeed < maxSpeed)
-						//carRidgidbody.AddForceAtPosition (gripImpulseForce * Time.deltaTime, forceLocation);	
-				//carRidgidbody.AddForce (engineForce * Time.deltaTime);
-				//if (mySpeed > maxSpeedToTurn)
-				//carRidgidbody.AddTorque (turnVec * Time.deltaTime);
-				//else if (mySpeed < maxSpeedToTurn)
-				//return;
-				//force impulsing for grip
-				carRidgidbody.AddForceAtPosition (gripImpulseForce * Time.deltaTime, gripLocation);	
+				updateEngineForceLocation ();
+				if (v > 0.1f || v < -0.1f) {
+						//carRidgidbody.AddForceAtPosition (Vector3.forward * enginePower * v, forceLocation);
+						//Vector3 worldForcePosition = transform.TransformPoint (this.transform.up);
+			carRidgidbody.AddForceAtPosition (this.transform.up * enginePower * v, forceLocation);
+				}
 		}
 }
