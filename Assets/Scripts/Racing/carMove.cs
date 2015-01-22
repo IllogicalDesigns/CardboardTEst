@@ -12,53 +12,52 @@ public class carMove : MonoBehaviour
 		}
 		public typeOfDrive myDrive = typeOfDrive.FrontWheelDrive;			//our drive type
 		public float carMass;												//how heavy is our car
-		public Vector3 forceLocation;										//our median point to simulate engine force {RED}
-		public Vector3 gripLocation;										//our grip location
-		public Vector3 centerOfGravity = new Vector3 (0f, -0.7f, 0.35f);	//how far do we force the cog down {BLUE}
+		//public Vector3 forceLocation;										//our median point to simulate engine force {RED}
+		private Transform forceLocation;
+		private Transform gripLocation;										//our grip location
+		private Transform centerOfGravity;									//how far do we force the cog down {BLUE}
 		public float enginePower = 1500f;									//our engines power and throttle
 		public float mySpeed;												//speed read out
 		public float maxSpeed = 100f;										//our maxiumum speed
-
+		public bool customCOG = false;
 		private Transform carTransform;										//our transform
 		private Rigidbody carRidgidbody;									//our ridgidbody
 		private Vector3 carUp;												//our up			
 		private Vector3 carRight;											//our right
 		private Vector3 carForward;											//our forward
 		public Collider[] myWheelColliders = new Collider[4]; 				//0RF 1LF 2RB 3LB
-		public Transform[] myVisualWheels = new Transform[4]; 				//0RF 1LF 2RB 3LB
+		private Transform[] myVisualWheels = new Transform[4]; 				//0RF 1LF 2RB 3LB
 		private Vector3 gripImpulseForce;									//our Grip Location changing as wheels are destroyed
 		private Vector3 engineForce;										//engine force vector
-	
+		private float originalEnginePower;
 		float h;
 		float v;
+
+
 
 		// Use this for initialization
 		void Start ()
 		{
-				updateEngineForceLocation ();
+				originalEnginePower = enginePower;
+				FindWheelsAndForces ();
+				updateForceLocation ();
 				CachingFun ();
-				FindAndSetUpWheels ();
 		}
 
 		void OnDrawGizmosSelected ()
 		{
-				Gizmos.color = Color.blue;
-				Gizmos.DrawSphere (centerOfGravity, 0.1f);
-				Gizmos.color = Color.red;
-				Gizmos.DrawSphere (forceLocation, 0.1f);
-
 				Color color;
 				color = Color.green;
-				// local up
-				DrawHelperAtCenter (this.transform.up, color, v * mySpeed + 0.1f);
+				if (forceLocation != null)
+						DrawHelperAtCenter (forceLocation.position, this.transform.up, color, v * mySpeed);
 
 		}
 
-		private void DrawHelperAtCenter (Vector3 direction, Color color, float scale)
+		private void DrawHelperAtCenter (Vector3 myPos, Vector3 direction, Color color, float scale)
 		{
 				Gizmos.color = color;
-				Vector3 destination = transform.position + direction * scale;
-				Gizmos.DrawLine (transform.position, destination);
+				Vector3 destination = myPos + direction * scale;
+				Gizmos.DrawLine (myPos, destination);
 		}
 
 		void CachingFun ()
@@ -75,22 +74,25 @@ public class carMove : MonoBehaviour
 						//set it to unity's value if we don't
 						carMass = carRidgidbody.mass;
 				//to prevent the car from fliping we need to set the car's center of gravity lower
-				if (centerOfGravity != Vector3.zero)
-						//set it to our custom if we have one
-						carRidgidbody.centerOfMass = centerOfGravity;
+				if (customCOG)
+						carRidgidbody.centerOfMass = centerOfGravity.position;
 				else
-						//set it to unity's value if we don't
-						centerOfGravity = carRidgidbody.centerOfMass;
+						centerOfGravity.position = carRidgidbody.centerOfMass;
 				//cache this car's vectors
 				carUp = carTransform.up;
 				carRight = carTransform.right;
 				carForward = carTransform.forward;
 		}
 
-		void FindAndSetUpWheels ()
+		void FindWheelsAndForces ()
 		{
-				Debug.Log ("test");
 				foreach (Transform child in transform) {
+						if (child.gameObject.tag == "EngineForce")
+								forceLocation = child.gameObject.transform;
+						if (child.gameObject.tag == "CenterOfGravity")
+								centerOfGravity = child.gameObject.transform;
+						if (child.gameObject.tag == "GripForce")
+								gripLocation = child.gameObject.transform;
 						if (child.gameObject.tag == "VisualWheel") {																		//our these the wheels we are looking for
 								if (child.gameObject.name.ToString ().Contains ("f") || child.gameObject.name.ToString ().Contains ("F")) {	//our we a front wheel
 										if (child.gameObject.name.Contains ("r") || child.gameObject.name.ToString ().Contains ("R")) {		//our we the right wheel
@@ -127,6 +129,10 @@ public class carMove : MonoBehaviour
 						Debug.LogError ("we can't Find all the wheelColliders for " + transform.parent.name);
 				if (myVisualWheels [0] == null || myVisualWheels [1] == null || myVisualWheels [2] == null || myVisualWheels [3] == null)
 						Debug.LogError ("we can't Find all the visualWheels for " + transform.parent.name);
+				if (forceLocation == null)
+						Debug.LogError ("our Engine Force Point came up null " + transform.parent.name);
+				if (centerOfGravity == null)
+						Debug.LogError ("our C.O.G. is null +" + transform.parent.name);
 		}
 
 		Vector3 findCenterOfPoints (List<Vector3> vecs2Test)
@@ -148,32 +154,73 @@ public class carMove : MonoBehaviour
 				return new Vector3 (newX / amountTested, newY / amountTested, newZ / amountTested);
 		}
 
-		void updateEngineForceLocation ()		//change to update both engineForce and gripLocation
+		void updateForceLocation ()		//change to update both engineForce and gripLocation
 		{
+				enginePower = originalEnginePower;
 				List<Vector3> currentlyAliveWheels = new List<Vector3> ();
-				if (myDrive == typeOfDrive.FrontWheelDrive) {
+				if (myDrive == typeOfDrive.FrontWheelDrive) {																	//FrontWheel
 						if (myWheelColliders [0].collider.enabled)
+								currentlyAliveWheels.Add (myWheelColliders [0].collider.gameObject.transform.position);			//if active add to alive wheels
+						if (myWheelColliders [1].collider.enabled)																//if active add to alive wheels
+								currentlyAliveWheels.Add (myWheelColliders [1].collider.gameObject.transform.position);
+						if (myWheelColliders [0].collider.enabled == false || myWheelColliders [1].collider.enabled == false)	//if wheel is missing reduce force
+								enginePower = enginePower / 2f;
+						if (myWheelColliders [0].collider.enabled == false && myWheelColliders [1].collider.enabled == false)	//if no wheels zero force
+								enginePower = 0f;
+				}																												//FrontWheelEnd
+				if (myDrive == typeOfDrive.RearWheelDrive) {																	//RearWheel
+						if (myWheelColliders [2].collider.enabled)
+								currentlyAliveWheels.Add (myWheelColliders [2].collider.gameObject.transform.position);			//if active add to alive wheels
+						if (myWheelColliders [3].collider.enabled)
+								currentlyAliveWheels.Add (myWheelColliders [3].collider.gameObject.transform.position);			//if active add to alive wheels
+						if (myWheelColliders [2].collider.enabled == false || myWheelColliders [3].collider.enabled == false)	//if wheel is missing reduce force
+								enginePower = enginePower / 2f;
+						if (myWheelColliders [2].collider.enabled == false && myWheelColliders [3].collider.enabled == false)	//if no wheels zero force
+								enginePower = 0f;
+				}																												//RearWheelEnd
+				if (myDrive == typeOfDrive.AllWheelDrive) {																		//AllWheel
+						if (myWheelColliders [0].collider.enabled)																//if active add to alive wheels
 								currentlyAliveWheels.Add (myWheelColliders [0].collider.gameObject.transform.position);
 						if (myWheelColliders [1].collider.enabled)
-								currentlyAliveWheels.Add (myWheelColliders [1].collider.gameObject.transform.position);
-				}
-				if (myDrive == typeOfDrive.RearWheelDrive) {
+								currentlyAliveWheels.Add (myWheelColliders [1].collider.gameObject.transform.position);			//if active add to alive wheels
 						if (myWheelColliders [2].collider.enabled)
-								currentlyAliveWheels.Add (myWheelColliders [2].collider.gameObject.transform.position);
+								currentlyAliveWheels.Add (myWheelColliders [2].collider.gameObject.transform.position);			//if active add to alive wheels
 						if (myWheelColliders [3].collider.enabled)
-								currentlyAliveWheels.Add (myWheelColliders [3].collider.gameObject.transform.position);
-				}
-				if (myDrive == typeOfDrive.AllWheelDrive) {
-						if (myWheelColliders [0].collider.enabled)
-								currentlyAliveWheels.Add (myWheelColliders [0].collider.gameObject.transform.position);
-						if (myWheelColliders [1].collider.enabled)
-								currentlyAliveWheels.Add (myWheelColliders [1].collider.gameObject.transform.position);
-						if (myWheelColliders [2].collider.enabled)
-								currentlyAliveWheels.Add (myWheelColliders [2].collider.gameObject.transform.position);
-						if (myWheelColliders [3].collider.enabled)
-								currentlyAliveWheels.Add (myWheelColliders [3].collider.gameObject.transform.position);
-				}
-				forceLocation = findCenterOfPoints (currentlyAliveWheels);
+								currentlyAliveWheels.Add (myWheelColliders [3].collider.gameObject.transform.position);			//if active add to alive wheels
+						//Reduce Values if tires our missing
+						if (myWheelColliders [0].collider.enabled == false || myWheelColliders [1].collider.enabled == false)	//if wheel is missing reduce force
+								enginePower = enginePower - (enginePower / 4f);
+						if (myWheelColliders [2].collider.enabled == false || myWheelColliders [3].collider.enabled == false)	//if wheel is missing reduce force
+								enginePower = enginePower - (enginePower / 4f);
+						if (myWheelColliders [0].collider.enabled == false && myWheelColliders [1].collider.enabled == false) 	//if wheel is missing reduce force
+								enginePower = enginePower / 2f;
+						if (myWheelColliders [2].collider.enabled == false && myWheelColliders [3].collider.enabled == false) 	//if wheel is missing reduce force
+								enginePower = enginePower / 2f;
+						if (myWheelColliders [1].collider.enabled == false && myWheelColliders [2].collider.enabled == false) 	//if wheel is missing reduce force
+								enginePower = enginePower / 2f;
+						if (myWheelColliders [0].collider.enabled == false && myWheelColliders [3].collider.enabled == false) 	//if wheel is missing reduce force
+								enginePower = enginePower / 2f;
+						if (myWheelColliders [0].collider.enabled == false && myWheelColliders [1].collider.enabled == false && myWheelColliders [2].collider.enabled == false && myWheelColliders [3].collider.enabled == false)	//if no wheels zero force
+								enginePower = 0f;
+				}																												//AllWheel
+		
+				forceLocation.position = findCenterOfPoints (currentlyAliveWheels);
+		}
+
+		private Vector3  rotationAmount;
+	
+		void rotateVisualWheels ()
+		{
+				//Front wheels roation based on steering
+				//leftFrontWheel.localEulerAngles.y = h * 30f;
+				//rightFrontWheel.localEulerAngles.y = h * 30f;
+		
+				rotationAmount = carRight * (mySpeed * 1.6f * Time.deltaTime * Mathf.Rad2Deg);
+		
+				myVisualWheels [0].Rotate (rotationAmount);
+				myVisualWheels [1].Rotate (rotationAmount);
+				myVisualWheels [2].Rotate (rotationAmount);
+				myVisualWheels [3].Rotate (rotationAmount);
 		}
 	
 		void carPhysicsUpdate ()
@@ -200,15 +247,18 @@ public class carMove : MonoBehaviour
 				v = Input.GetAxis ("Throttle");
 				//updateEngineForceLocation ();
 				mySpeed = carRidgidbody.velocity.magnitude;
+				rotateVisualWheels ();
+				if (Input.GetKeyDown (KeyCode.LeftControl))
+						updateForceLocation ();
+
 		}
 
 		void FixedUpdate ()
 		{
-				updateEngineForceLocation ();
-				if (v > 0.1f || v < -0.1f) {
+				if (v > 0.1f && mySpeed < maxSpeed || v < -0.1f && mySpeed < maxSpeed) {
 						//carRidgidbody.AddForceAtPosition (Vector3.forward * enginePower * v, forceLocation);
 						//Vector3 worldForcePosition = transform.TransformPoint (this.transform.up);
-			carRidgidbody.AddForceAtPosition (this.transform.up * enginePower * v, forceLocation);
+						carRidgidbody.AddForceAtPosition (this.transform.up * enginePower * v, forceLocation.position);
 				}
 		}
 }
