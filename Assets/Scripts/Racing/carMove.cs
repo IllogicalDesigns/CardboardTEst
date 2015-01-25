@@ -14,24 +14,22 @@ public class carMove : MonoBehaviour
 		public float carMass;												//how heavy is our car
 		private Transform forceLocation;									//our median point to simulate engine force {RED}
 		public Transform gripCenter;										//our grip location
-		private Transform centerOfGravity;									//how far do we force the cog down {BLUE}
+		public Transform centerOfGravity;									//how far do we force the cog down {BLUE}
 		public Transform turnPoint;											//our turn point to add force to
 		public float enginePower = 1500f;									//our engines power and throttle
 		public float gripPower = 50f;										//our grip
-		public float slip = 1f;
+		public float slip = 1f;												//slip to our grip
+		public float turnForce = 5f;										//turn the car
 		public float mySpeed;												//speed read out
 		public float maxSpeed = 100f;										//our maxiumum speed
 		public bool customCOG = false;										//allows us to overide unity
 		private Transform carTransform;										//our transform
 		private Rigidbody carRidgidbody;									//our ridgidbody
-		private Vector3 carUp;												//our up			
-		private Vector3 carRight;											//our right
-		private Vector3 carForward;											//our forward
 		public Collider[] myWheelColliders = new Collider[4]; 				//0RF 1LF 2RB 3LB
 		private Transform[] myVisualWheels = new Transform[4]; 				//0RF 1LF 2RB 3LB
-		private Vector3 engineForce;										//engine force vector
 		private float originalEnginePower;
 		private float originalGripForce;
+		public bool onGround = false;
 		float h;
 		float v;
 
@@ -85,10 +83,7 @@ public class carMove : MonoBehaviour
 						carRidgidbody.centerOfMass = centerOfGravity.position;
 				else
 						centerOfGravity.position = carRidgidbody.centerOfMass;
-				//cache this car's vectors
-				carUp = carTransform.up;
-				carRight = carTransform.right;
-				carForward = carTransform.forward;
+				;
 		}
 
 		void FindWheelsAndForces ()
@@ -255,11 +250,11 @@ public class carMove : MonoBehaviour
 		void rotateVisualWheels ()
 		{
 				//Front wheels roation based on steering
-				float newY0 = h * 30f;
+				float newY0 = h * 30f * transform.localPosition.x;
 				myVisualWheels [0].transform.localEulerAngles = new Vector3 (myVisualWheels [0].transform.localEulerAngles.x, newY0, myVisualWheels [0].transform.localEulerAngles.z);
 				myVisualWheels [1].transform.localEulerAngles = new Vector3 (myVisualWheels [1].transform.localEulerAngles.x, newY0, myVisualWheels [1].transform.localEulerAngles.z);
 		
-				rotationAmount = carRight * (mySpeed * 1.6f * Time.deltaTime * Mathf.Rad2Deg);
+				rotationAmount = transform.right * (mySpeed * 1.6f * Time.deltaTime * Mathf.Rad2Deg);
 		
 				myVisualWheels [0].Rotate (rotationAmount);
 				myVisualWheels [1].Rotate (rotationAmount);
@@ -306,6 +301,14 @@ public class carMove : MonoBehaviour
 				//updateEngineForceLocation ();
 				mySpeed = carRidgidbody.velocity.magnitude;
 				rotateVisualWheels ();
+				Debug.DrawRay (transform.position, -transform.forward, Color.red);
+				RaycastHit hit;
+				if (Physics.Raycast (centerOfGravity.position, -this.transform.forward, out hit, 0.5f)) {
+						if (hit.collider.tag == "Ground")
+								onGround = true;
+				} else {
+						onGround = false;
+				}
 				if (Input.GetKeyDown (KeyCode.LeftControl))
 						updateForceLocation (true);
 
@@ -313,10 +316,15 @@ public class carMove : MonoBehaviour
 
 		void FixedUpdate ()
 		{
-				if (v > 0.1f && mySpeed < maxSpeed || v < -0.1f && mySpeed < maxSpeed) {
-						//carRidgidbody.AddForceAtPosition (Vector3.forward * enginePower * v, forceLocation);
-						//Vector3 worldForcePosition = transform.TransformPoint (this.transform.up);
-						carRidgidbody.AddForceAtPosition (this.transform.up * enginePower * v, forceLocation.position);
+				//carRidgidbody.AddForceAtPosition (centerOfGravity.position, 50f * -this.transform.up);
+				if (!onGround) {
+						if (mySpeed > 0.1f)
+								carRidgidbody.AddForceAtPosition (this.transform.right * turnForce * (mySpeed * 0.1f) * -h, turnPoint.position);
+						if (v > 0.1f && mySpeed < maxSpeed || v < -0.1f && mySpeed < maxSpeed) {
+								//carRidgidbody.AddForceAtPosition (Vector3.forward * enginePower * v, forceLocation);
+								//Vector3 worldForcePosition = transform.TransformPoint (this.transform.up);
+								carRidgidbody.AddForceAtPosition (this.transform.up * enginePower * v, forceLocation.position);
+						}
 				}
 		}
 }
