@@ -16,22 +16,30 @@ public class carMove : MonoBehaviour
 		public Transform gripCenter;										//our grip location
 		public Transform centerOfGravity;									//how far do we force the cog down {BLUE}
 		public Transform turnPoint;											//our turn point to add force to
+		private Vector3 engineForce;
+		private Vector3 turnVec;
 		public float enginePower = 1500f;									//our engines power and throttle
-		public float gripPower = 50f;										//our grip
+		public float gripPower = 70f;										//our grip
+		public float actualGrip;
 		public float slip = 1f;												//slip to our grip
-		public float turnForce = 5f;										//turn the car
+		public float turnForce = 3f;										//turn the car
 		public float mySpeed;												//speed read out
 		public float maxSpeed = 100f;										//our maxiumum speed
 		public bool customCOG = false;										//allows us to overide unity
 		private Transform carTransform;										//our transform
 		private Rigidbody carRidgidbody;									//our ridgidbody
-		public Collider[] myWheelColliders = new Collider[4]; 				//0RF 1LF 2RB 3LB
+		public Collider[] myWheelColliders = new Collider[4]; 	//0RF 1LF 2RB 3LB
 		private Transform[] myVisualWheels = new Transform[4]; 				//0RF 1LF 2RB 3LB
 		private float originalEnginePower;
 		private float originalGripForce;
+		private float maxSpeedToTurn = 0.2f;
 		public bool onGround = false;
+		private Vector3 relativeVelocity;
+		Vector3 imp;
 		float h;
 		float v;
+		float slideSpeed;
+		float rev;
 
 
 
@@ -48,14 +56,17 @@ public class carMove : MonoBehaviour
 		{
 				Color color;
 				color = Color.green;
-				if (forceLocation != null)
-						DrawHelperAtCenter (forceLocation.position, this.transform.up, color, v * mySpeed);
+				//if (forceLocation != null)
+						//DrawHelperAtCenter (forceLocation.position, engineForce * mySpeed);
 				Gizmos.color = Color.blue;
-				Gizmos.DrawSphere (centerOfGravity.position, 0.1f);
-				color = Color.magenta;
+				if (centerOfGravity != null)
+						Gizmos.DrawSphere (centerOfGravity.position, 0.1f);
+				color = Color.red;
+				if (turnPoint != null)
+						DrawHelperAtCenter (turnPoint.position, turnVec, color, 10f);
+				color = Color.blue;
 				if (gripCenter != null)
-						DrawHelperAtCenter (gripCenter.position, this.transform.right, color, 1f);
-
+						DrawHelperAtCenter (gripCenter.position, imp, color, 10f);
 		}
 
 		private void DrawHelperAtCenter (Vector3 myPos, Vector3 direction, Color color, float scale)
@@ -83,7 +94,6 @@ public class carMove : MonoBehaviour
 						carRidgidbody.centerOfMass = centerOfGravity.position;
 				else
 						centerOfGravity.position = carRidgidbody.centerOfMass;
-				;
 		}
 
 		void FindWheelsAndForces ()
@@ -254,7 +264,7 @@ public class carMove : MonoBehaviour
 				myVisualWheels [0].transform.localEulerAngles = new Vector3 (myVisualWheels [0].transform.localEulerAngles.x, newY0, myVisualWheels [0].transform.localEulerAngles.z);
 				myVisualWheels [1].transform.localEulerAngles = new Vector3 (myVisualWheels [1].transform.localEulerAngles.x, newY0, myVisualWheels [1].transform.localEulerAngles.z);
 		
-				rotationAmount = transform.right * (mySpeed * 1.6f * Time.deltaTime * Mathf.Rad2Deg);
+		rotationAmount = transform.right * (relativeVelocity.z * 1.6f * Time.deltaTime * Mathf.Rad2Deg);
 		
 				myVisualWheels [0].Rotate (rotationAmount);
 				myVisualWheels [1].Rotate (rotationAmount);
@@ -264,20 +274,42 @@ public class carMove : MonoBehaviour
 	
 		void carPhysicsUpdate ()
 		{
-				/*	//grab all the physics info we need to calculate everything
-				Vector3 myRight = carTransform.right;
+				//Vector3 velo = carRidgidbody.velocity;
+				//Vector3 tmpVec = new Vector3 (velo.x, 0, velo.z);
+
+				//slideSpeed = Vector3.Dot (transform.right, tmpVec);
+				//actualGrip = Mathf.Lerp (100f, gripPower, mySpeed * 0.02f);
+
 				//we find our velocity
 				Vector3 velo = carRidgidbody.velocity;
 				Vector3 tmpVec = new Vector3 (velo.x, 0, velo.z);
 				//our velocity with our y movement
 				Vector3 flatVelo = tmpVec;
 				//find direction we our moving in
-				Vector3 dir = transform.TransformDirection (carForward);
+				Vector3 dir = transform.TransformDirection (transform.forward);
 				tmpVec = new Vector3 (dir.x, 0, dir.z);
 				//figure out our velocity without y movement - our flat velocity
 				Vector3 flatDir = Vector3.Normalize (tmpVec);
+				//calculate realtive velocity
+				relativeVelocity = carTransform.InverseTransformDirection (flatVelo);
+				//calculate sliding along x
+				slideSpeed = Vector3.Dot (transform.right, flatVelo);
+				//calculae current speed along flat velocity
+				mySpeed = flatVelo.magnitude;
+				//check to see if we are movinf in reverse
+				rev = Mathf.Sign (Vector3.Dot (flatVelo, flatDir));
 				//calculate engine force with flat vector and acceration
-				engineForce = (flatDir * (enginePower) * carMass);	*/
+				engineForce = (flatDir * (enginePower) * carMass);
+				//perform the turning fuction
+				float actualTurn = h;
+				//if reversing we need to reverse the turn
+				if (rev < 0.1f)
+						actualTurn -= actualTurn;
+				//calculate tourqe to apply to the ridgidbody
+				turnVec = (((transform.up * turnForce) * actualTurn) * carMass) * 800f;
+				//calculate pulses to make grip more realistic
+				actualGrip = Mathf.Lerp (100f, gripPower, mySpeed * 0.02f);
+				imp = transform.right * (-slideSpeed * carMass * actualGrip);
 		}
 
 		void updateEngineSound ()
@@ -299,11 +331,10 @@ public class carMove : MonoBehaviour
 				h = Input.GetAxis ("Horizontal");
 				v = Input.GetAxis ("Throttle");
 				//updateEngineForceLocation ();
-				mySpeed = carRidgidbody.velocity.magnitude;
 				rotateVisualWheels ();
-				Debug.DrawRay (transform.position, -transform.forward, Color.red);
+				Debug.DrawRay (centerOfGravity.position, -transform.forward, Color.red);
 				RaycastHit hit;
-				if (Physics.Raycast (centerOfGravity.position, -this.transform.forward, out hit, 0.5f)) {
+				if (Physics.Raycast (centerOfGravity.position, -this.transform.forward, out hit, 1f)) {
 						if (hit.collider.tag == "Ground")
 								onGround = true;
 				} else {
@@ -317,14 +348,26 @@ public class carMove : MonoBehaviour
 		void FixedUpdate ()
 		{
 				//carRidgidbody.AddForceAtPosition (centerOfGravity.position, 50f * -this.transform.up);
-				if (!onGround) {
-						if (mySpeed > 0.1f)
-								carRidgidbody.AddForceAtPosition (this.transform.right * turnForce * (mySpeed * 0.1f) * -h, turnPoint.position);
-						if (v > 0.1f && mySpeed < maxSpeed || v < -0.1f && mySpeed < maxSpeed) {
+				//if (onGround) {
+						/*imp = transform.right * (-slideSpeed * carMass * actualGrip);
+						carRidgidbody.AddForceAtPosition ((imp), gripCenter.position);
+						if (mySpeed > maxSpeedToTurn)
+								carRidgidbody.AddTorque (turnVec * Time.deltaTime);
+						//if (mySpeed > 0.1f)
+						//carRidgidbody.AddForceAtPosition (this.transform.right * turnForce * (mySpeed * 0.1f) * -h, turnPoint.position);
+						if (mySpeed < maxSpeed) {
 								//carRidgidbody.AddForceAtPosition (Vector3.forward * enginePower * v, forceLocation);
 								//Vector3 worldForcePosition = transform.TransformPoint (this.transform.up);
-								carRidgidbody.AddForceAtPosition (this.transform.up * enginePower * v, forceLocation.position);
-						}
-				}
+								carRidgidbody.AddForceAtPosition (engineForce, forceLocation.position);
+						}*/
+
+						if (mySpeed < maxSpeed)
+								carRidgidbody.AddForce (engineForce * v);
+						if (mySpeed > maxSpeedToTurn)
+								carRidgidbody.AddTorque (turnVec);
+						else if (mySpeed < maxSpeedToTurn)
+								return;
+						carRidgidbody.AddForce (imp * Time.deltaTime);
+				//}
 		}
 }
