@@ -1,0 +1,125 @@
+fileFormatVersion: 2
+guid: 35ca3a674a3374f428daf816714de875
+ModelImporter:
+  serializedVersion: 16
+  fileIDToRecycleName:
+    100000: blobtest
+    100002: chair
+    100004: chairmetall
+    100006: //RootNode
+    100008: chasis_l
+    100010: tire_fl
+    100012: engine
+    100014: steerWheel
+    100016: back
+    100018: backleft
+    100020: backright
+    100022: center
+    100024: front
+    100026: frontleft
+    100028: frontright
+    100030: left
+    100032: right
+    100034: Polygonobj
+    400000: blobtest
+    400002: chair
+    400004: chairmetall
+    400006: //RootNode
+    400008: chasis_l
+    400010: tire_fl
+    400012: engine
+    400014: steerWheel
+    400016: back
+    400018: backleft
+    400020: backright
+    400022: center
+    400024: front
+    400026: frontleft
+    400028: frontright
+    400030: left
+    400032: right
+    400034: Polygonobj
+    2300000: blobtest
+    2300002: chair
+    2300004: chairmetall
+    2300006: tire_fl
+    2300008: Polygonobj
+    2300010: engine
+    2300012: steerWheel
+    3300000: blobtest
+    3300002: chair
+    3300004: chairmetall
+    3300006: tire_fl
+    3300008: Polygonobj
+    3300010: engine
+    3300012: steerWheel
+    4300000: Cylinder
+    4300002: tire.3
+    4300004: Box
+    4300006: cartBase
+    4300008: chasis_front_r
+    4300010: chasis_l
+    4300012: chair
+    4300014: chairmetall
+    4300016: steerWheel
+    4300018: blobtest
+    4300020: engine
+    4300022: tire_fl
+    4300024: Polygonobj
+    11100000: //RootNode
+    13700000: center
+    13700002: chasis_l
+  materials:
+    importMaterials: 1
+    materialName: 3
+    materialSearch: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    optimizeGameObjects: 0
+    motionNodeName: 
+    animationCompression: 0
+    animationRotationError: .5
+    animationPositionError: .5
+    animationScaleError: .5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    clipAnimations: []
+    isReadable: 1
+  meshes:
+    lODScreenPercentages: []
+    globalScale: .00999999978
+    meshCompression: 0
+    addColliders: 0
+    importBlendShapes: 1
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    optimizeMeshForGPU: 1
+    weldVertices: 1
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVPackMargin: 4
+  tangentSpace:
+    normalSmoothAngle: 60
+    splitTangentsAcrossUV: 0
+    normalImportMode: 0
+    tangentImportMode: 1
+  importAnimation: 1
+  copyAvatar: 0
+  humanDescription:
+    human: []
+    skeleton: []
+    armTwist: .5
+    foreArmTwist: .5
+    upperLegTwist: .5
+    legTwist: .5
+    armStretch: .0500000007
+    legStretch: .0500000007
+    feetSpacing: 0
+    rootMotionBoneName: 
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  animationType: 1
+  additionalBone: 0
+  userData: 

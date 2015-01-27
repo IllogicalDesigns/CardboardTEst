@@ -22,7 +22,7 @@ TextureImporter:
   grayScaleToAlpha: 0
   generateCubemap: 3
   seamlessCubemap: 0
-  textureFormat: 12
+  textureFormat: 11
   maxTextureSize: 32
   textureSettings:
     filterMode: 1
