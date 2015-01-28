@@ -36,6 +36,7 @@ public class EasyPlayerMove : MonoBehaviour
 						rigidbody.AddForce (downPressure, ForceMode.Acceleration);
 				}
 		}
+
 		Vector3 GetWheelPos (WheelCollider myWheelColl, Transform myWheel)
 		{
 				RaycastHit hit;
@@ -46,6 +47,7 @@ public class EasyPlayerMove : MonoBehaviour
 				}
 				return myWheel.position;
 		}
+
 		void UpdateVisualWheels ()
 		{
 				Quaternion newRotation = new Quaternion (transform.rotation.x, transform.rotation.y, transform.rotation.z, transform.rotation.w);
@@ -54,10 +56,12 @@ public class EasyPlayerMove : MonoBehaviour
 						myTurnColl [i].steerAngle = (mySteer / 2f) * h;
 				}
 				for (int i = 0; i < myVisualWheels.Length; i++) {
-					myVisualWheels[i].transform.position = GetWheelPos(myColliderWheels[i], myVisualWheels[i]) ;
+						myVisualWheels [i].transform.position = GetWheelPos (myColliderWheels [i], myVisualWheels [i]);
 				}
 				for (int i = 0; i < myTurnWheels.Length; i++) {
-					myTurnWheels [i].transform.rotation = Quaternion.Slerp (transform.rotation, newRotation, 20f * Time.deltaTime);
+						Quaternion newRotation2 = new Quaternion (myTurnWheels [i].transform.rotation.x, myTurnWheels [i].transform.rotation.y, myTurnWheels [i].transform.rotation.z, myTurnWheels [i].transform.rotation.w);
+			newRotation2 *= Quaternion.Euler (0f, (mySteer * h), 0f); // this add a 90 degrees Y rotation
+						myTurnWheels [i].transform.rotation = Quaternion.Slerp (transform.rotation, newRotation2, 20f * Time.deltaTime);
 				}
 				
 		}
