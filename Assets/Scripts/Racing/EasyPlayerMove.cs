@@ -50,20 +50,20 @@ public class EasyPlayerMove : MonoBehaviour
 
 		void UpdateVisualWheels ()
 		{
-				Quaternion newRotation = new Quaternion (transform.rotation.x, transform.rotation.y, transform.rotation.z, transform.rotation.w);
-				newRotation *= Quaternion.Euler (0f, mySteer * h, 0f); // this add a 90 degrees Y rotation
 				for (int i = 0; i < myTurnColl.Length; i++) {
 						myTurnColl [i].steerAngle = (mySteer / 2f) * h;
 				}
 				for (int i = 0; i < myVisualWheels.Length; i++) {
-						myVisualWheels [i].transform.position = GetWheelPos (myColliderWheels [i], myVisualWheels [i]);
+						myVisualWheels [i].position = GetWheelPos (myColliderWheels [i], myVisualWheels [i]);
+						myVisualWheels [i].rotation = myColliderWheels [i].transform.rotation;
+						//float myWheelRot = myVisualWheels[i].localRotation.y * myColliderWheels[i].rpm;
+						//myVisualWheels[i].localEulerAngles = new Vector3 (myWheelRot, myVisualWheels[i].localEulerAngles.y, myVisualWheels[i].localEulerAngles.z);
+						//myVisualWheels [i].Rotate (Vector3.right * Time.deltaTime, Space.Self);
+						myVisualWheels [i].RotateAround(myVisualWheels [i].transform.position, myVisualWheels [i].transform.right, 20 * Time.deltaTime);
 				}
 				for (int i = 0; i < myTurnWheels.Length; i++) {
-						Quaternion newRotation2 = new Quaternion (myTurnWheels [i].transform.rotation.x, myTurnWheels [i].transform.rotation.y, myTurnWheels [i].transform.rotation.z, myTurnWheels [i].transform.rotation.w);
-			newRotation2 *= Quaternion.Euler (0f, (mySteer * h), 0f); // this add a 90 degrees Y rotation
-						myTurnWheels [i].transform.rotation = Quaternion.Slerp (transform.rotation, newRotation2, 20f * Time.deltaTime);
+						myTurnWheels [i].localEulerAngles = new Vector3 (myTurnWheels [i].localEulerAngles.x, 90f + (mySteer * h), myTurnWheels [i].localEulerAngles.z);
 				}
-				
 		}
 		// Use this for initialization
 		void Start ()
