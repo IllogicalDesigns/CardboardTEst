@@ -11,6 +11,7 @@ ModelImporter:
     100010: Wheel.002
     100012: Wheel.003
     100014: Cube
+    100016: Plane
     400000: Hood
     400002: //RootNode
     400004: Wheel
@@ -19,6 +20,7 @@ ModelImporter:
     400010: Wheel.002
     400012: Wheel.003
     400014: Cube
+    400016: Plane
     2300000: Hood
     2300002: Wheel
     2300004: Rear
@@ -26,6 +28,7 @@ ModelImporter:
     2300008: Wheel.002
     2300010: Wheel.003
     2300012: Cube
+    2300014: Plane
     3300000: Hood
     3300002: Wheel
     3300004: Rear
@@ -33,6 +36,7 @@ ModelImporter:
     3300008: Wheel.002
     3300010: Wheel.003
     3300012: Cube
+    3300014: Plane
     4300000: Wheel
     4300002: Hood
     4300004: Rear
@@ -40,6 +44,7 @@ ModelImporter:
     4300008: Wheel.002
     4300010: Wheel.001
     4300012: Cube
+    4300014: Plane
     6400000: Hood
     6400002: Wheel
     6400004: Rear
@@ -47,6 +52,7 @@ ModelImporter:
     6400008: Wheel.002
     6400010: Wheel.003
     6400012: Cube
+    6400014: Plane
     9500000: //RootNode
   materials:
     importMaterials: 0
