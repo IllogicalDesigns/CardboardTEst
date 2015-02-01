@@ -1,8 +1,18 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
 using System.Collections;
+using System.Collections.Generic;
+using UnityEngine.Events;
+using UnityEngine.EventSystems;
 
 public class EasyPlayerMove : MonoBehaviour
 {
+		public enum controlType
+		{
+				KeyboardGamepad,
+				Mobile
+		}
+		public controlType myControlType;
 		public float myEngineTorque = 10f;
 		public float myMaxTurnAmount = 50f;
 		public float myMinTurnAmount = 5f;
@@ -19,7 +29,8 @@ public class EasyPlayerMove : MonoBehaviour
 		private float h;
 		private float v;
 		private float mySteer;
-
+	public bool throttlePressed = false;
+	public Button myThrottle;
 		void DownwardForce ()
 		{
 				bool isGrounded = false;
@@ -59,11 +70,29 @@ public class EasyPlayerMove : MonoBehaviour
 						//float myWheelRot = myVisualWheels[i].localRotation.y * myColliderWheels[i].rpm;
 						//myVisualWheels[i].localEulerAngles = new Vector3 (myWheelRot, myVisualWheels[i].localEulerAngles.y, myVisualWheels[i].localEulerAngles.z);
 						//myVisualWheels [i].Rotate (Vector3.right * Time.deltaTime, Space.Self);
-						myVisualWheels [i].RotateAround(myVisualWheels [i].transform.position, myVisualWheels [i].transform.right, 20 * Time.deltaTime);
+						myVisualWheels [i].RotateAround (myVisualWheels [i].transform.position, myVisualWheels [i].transform.right, 20 * Time.deltaTime);
 				}
 				for (int i = 0; i < myTurnWheels.Length; i++) {
 						myTurnWheels [i].localEulerAngles = new Vector3 (myTurnWheels [i].localEulerAngles.x, 90f + (mySteer * h), myTurnWheels [i].localEulerAngles.z);
 				}
+		}
+
+		void MobileControls ()
+		{
+				Vector3 myAccelerometerData = Input.acceleration;
+				//Debug.Log (myAccelerometerData);
+				h = myAccelerometerData.x;
+				h = Mathf.Clamp (h, -1f, 1f);
+				//Debug.Log (h.ToString ());)
+		if (Input.touchCount > 0) {
+						Touch touch = Input.GetTouch (0);
+						if (touch.position.x < Screen.width / 2) {
+								v = -1;
+						} else if (touch.position.x > Screen.width / 2) {
+								v = 1;
+						}
+				} else 
+						v = 0;
 		}
 		// Use this for initialization
 		void Start ()
@@ -73,8 +102,13 @@ public class EasyPlayerMove : MonoBehaviour
 		// Update is called once per frame
 		void Update ()
 		{
-				h = Input.GetAxis ("Horizontal");
-				v = Input.GetAxis ("Throttle");
+				if (myControlType == controlType.KeyboardGamepad) {
+						h = Input.GetAxis ("Horizontal");
+						v = Input.GetAxis ("Throttle");
+				}
+				if (myControlType == controlType.Mobile) {
+						MobileControls ();
+				}
 				CalculateSpeed ();
 				UpdateVisualWheels ();
 		}

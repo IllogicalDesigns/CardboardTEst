@@ -4,12 +4,22 @@ using System.Collections;
 
 public class GuiMainMeun : MonoBehaviour
 {
+	public string lvl2Load = "FIX_ME";
 		public Animator[] myMainMenuAnimators;
 
 		// Use this for initialization
 		void Start ()
 		{
 	
+		}
+		public void LoadLevel ()
+	{
+		Application.LoadLevel (lvl2Load);
+		Debug.Log (lvl2Load);
+	}
+		public void QuitGame ()
+		{
+		Application.Quit ();
 		}
 
 		public void CloseMainMenu ()
