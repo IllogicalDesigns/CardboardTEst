@@ -12,6 +12,7 @@ public class EasyPlayerMove : MonoBehaviour
 				KeyboardGamepad,
 				Mobile
 		}
+		public static float sensetivity = 2f;
 		public controlType myControlType;
 		public float myEngineTorque = 10f;
 		public float myMaxTurnAmount = 50f;
@@ -29,8 +30,7 @@ public class EasyPlayerMove : MonoBehaviour
 		private float h;
 		private float v;
 		private float mySteer;
-	public bool throttlePressed = false;
-	public Button myThrottle;
+
 		void DownwardForce ()
 		{
 				bool isGrounded = false;
@@ -81,9 +81,8 @@ public class EasyPlayerMove : MonoBehaviour
 		{
 				Vector3 myAccelerometerData = Input.acceleration;
 				//Debug.Log (myAccelerometerData);
-				h = myAccelerometerData.x;
+				h = myAccelerometerData.x * sensetivity;
 				h = Mathf.Clamp (h, -1f, 1f);
-				//Debug.Log (h.ToString ());)
 		if (Input.touchCount > 0) {
 						Touch touch = Input.GetTouch (0);
 						if (touch.position.x < Screen.width / 2) {
