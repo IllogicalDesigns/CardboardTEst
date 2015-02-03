@@ -10,18 +10,18 @@ public class EasyPlayerMove : MonoBehaviour
 		public enum controlType
 		{
 				KeyboardGamepad,
+				VirtualReality,
 				Mobile
 		}
 		public static float sensetivity = 2f;
-		public controlType myControlType;
+		public static controlType myControlType;
 		public float myEngineTorque = 10f;
 		public float myMaxTurnAmount = 50f;
 		public float myMinTurnAmount = 5f;
 		public float highSpeed = 50f;
-		public float currentSpeed;
+		public float myCurrentSpeed;
 		public float topSpeed = 10f;
 		public float downPressureFactor = 0.5f;
-		public float massCenterY = -0.1f;
 		public WheelCollider[] myColliderWheels = new WheelCollider[4]; 				//0LF 1LB 2RF 3RB
 		public Transform[] myVisualWheels = new Transform[4]; 							//0LF 1LB 2RF 3RB
 		public WheelCollider[] myTurnColl = new WheelCollider[2];						//0 == left && 1 == right
@@ -30,6 +30,7 @@ public class EasyPlayerMove : MonoBehaviour
 		private float h;
 		private float v;
 		private float mySteer;
+		private AudioSource myEngine;
 
 		void DownwardForce ()
 		{
@@ -83,7 +84,7 @@ public class EasyPlayerMove : MonoBehaviour
 				//Debug.Log (myAccelerometerData);
 				h = myAccelerometerData.x * sensetivity;
 				h = Mathf.Clamp (h, -1f, 1f);
-		if (Input.touchCount > 0) {
+				if (Input.touchCount > 0) {
 						Touch touch = Input.GetTouch (0);
 						if (touch.position.x < Screen.width / 2) {
 								v = -1;
@@ -96,11 +97,17 @@ public class EasyPlayerMove : MonoBehaviour
 		// Use this for initialization
 		void Start ()
 		{
-				rigidbody.centerOfMass = new Vector3 (0.0f, massCenterY, 0.0f);
+				myEngine = gameObject.GetComponent<AudioSource> ();
+				myEngine.pitch = 1f;
+				sensetivity = GuiMainMeun.mySensitivity;
 		}
 		// Update is called once per frame
 		void Update ()
 		{
+				if (myControlType == controlType.VirtualReality) {
+						Application.LoadLevel ("MainMenu");
+						Debug.LogError("VR Controls do not work");
+				}
 				if (myControlType == controlType.KeyboardGamepad) {
 						h = Input.GetAxis ("Horizontal");
 						v = Input.GetAxis ("Throttle");
@@ -109,18 +116,36 @@ public class EasyPlayerMove : MonoBehaviour
 						MobileControls ();
 				}
 				CalculateSpeed ();
-				UpdateVisualWheels ();
+				UpdateVisualWheels ();	
+				AdjustVolumePitch ();
+		}
+
+		void AdjustVolumePitch ()
+		{
+				
+				float tmpFloat = Mathf.Abs (myCurrentSpeed);
+				myEngine.pitch = 1f + tmpFloat * 0.025f;
+				if (myCurrentSpeed > 40f)
+						myEngine.pitch = 1.15f + tmpFloat * 0.015f;
+				if (myCurrentSpeed > 60f)
+						myEngine.pitch = 1.25f + tmpFloat * 0.013f;
+				if (myCurrentSpeed > 80f)
+						myEngine.pitch = 1.5f + tmpFloat * 0.011f;
+				if (myEngine.pitch < 1f)
+						myEngine.pitch = 1f;
+				if (myEngine.pitch > 2.3f)
+						myEngine.pitch = 2.3f;
 		}
 
 		void CalculateSpeed ()
 		{
-				currentSpeed = 2 * 22 / 7 * myTurnColl [0].radius * myTurnColl [0].rpm * 60 / 1000;
-				currentSpeed = Mathf.Round (-currentSpeed);
+				myCurrentSpeed = 2 * 22 / 7 * myTurnColl [0].radius * myTurnColl [0].rpm * 60 / 1000;
+				myCurrentSpeed = Mathf.Round (-myCurrentSpeed);
 		}
 
 		void EngineTorque ()
 		{
-				if (currentSpeed < topSpeed && currentSpeed > -(topSpeed / 2f)) {
+				if (myCurrentSpeed < topSpeed && myCurrentSpeed > -(topSpeed / 2f)) {
 						for (int i = 0; i < myEngineWheels.Length; i++) {
 								myEngineWheels [i].motorTorque = (myEngineTorque * -v) / myEngineWheels.Length;
 						}
@@ -133,7 +158,7 @@ public class EasyPlayerMove : MonoBehaviour
 
 		void FixedUpdate ()
 		{
-				mySteer = Mathf.Lerp (myMaxTurnAmount, myMinTurnAmount, currentSpeed / highSpeed);
+				mySteer = Mathf.Lerp (myMaxTurnAmount, myMinTurnAmount, myCurrentSpeed / highSpeed);
 				EngineTorque ();
 				DownwardForce ();
 		}

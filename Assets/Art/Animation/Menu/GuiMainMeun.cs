@@ -7,23 +7,40 @@ public class GuiMainMeun : MonoBehaviour
 		public string lvl2Load = "FIX_ME";
 		public Animator[] myMainMenuAnimators;
 		public Canvas[] myMainCanvas;				//Main = 1 //Options = 2 //RaceSetup = 3 //Extras = 4
-		public Text[] myOptionsText;
-		public Slider[] mySliders;
+		public Text[] myOptionsText;				//sense = 1 //Volume = 2 //Grapx = 3	 //ControlText = 4			
+		public Slider[] mySliders;					//sense = 1 //Volume = 2 //Grapx = 3
 		public static int mySensitivity = 5;
 		public static float myVolume = 0.5f;
-		public static int myGraphics = 5;
 		public string[] names;
+		public int currControls = 1;
 		// Use this for initialization
 		void Start ()
 		{
-				QualitySettings.SetQualityLevel(PlayerPrefs.GetInt("qualityLevel"));
-		mySliders[2].value = PlayerPrefs.GetInt("qualityLevel");
+				//get our quality names
+				names = QualitySettings.names;
+				//set the graphxQ slider length to be that of out Q levels
+				mySliders [2].maxValue = (names.Length - 1);
+				//load our sensetivity setting then update the menu
+				mySliders [0].value = PlayerPrefs.GetInt ("mySensitivity");
+				OptionsUpdateSensetivity ();
+				//load our voulume setting then update the menu
+				mySliders [1].value = PlayerPrefs.GetInt ("myVolume");
+				OptionsUpdateVolume ();
+				//load our Quality setting then update the menu
+				QualitySettings.SetQualityLevel (PlayerPrefs.GetInt ("qualityLevel"));
+				mySliders [2].value = PlayerPrefs.GetInt ("qualityLevel");
+				OptionsUpdateGraphics ();
+				//load our Control Settings
+				currControls = PlayerPrefs.GetInt ("ControlType");
+				currControls = currControls - 1;
+				OptionsUpdateControlType ();
+				//disable all canvas then enable the menu canvas
 				foreach (Canvas tempCan in myMainCanvas) {
 						tempCan.enabled = false;
 				}
 				myMainCanvas [0].enabled = true;
-				names = QualitySettings.names;
-				mySliders [2].maxValue = (names.Length - 1);
+				//set our gameVolume to the right volume
+				AudioListener.volume = myVolume;
 		}
 
 		public void LoadLevel ()
@@ -62,23 +79,50 @@ public class GuiMainMeun : MonoBehaviour
 
 		public void OptionsUpdateVolume ()
 		{
-				int tmpInt = Mathf.RoundToInt (mySliders [1].value);
 				myOptionsText [1].text = (myOptionsText [1].name + " : " + Mathf.RoundToInt (mySliders [1].value).ToString ());
-				//myVolume = (Mathf.RoundToInt (mySliders [1].value) );
+				float tmpFloat = mySliders [1].value;
+				tmpFloat = tmpFloat / 10f;
+				tmpFloat = tmpFloat / 10f;
+				myVolume = tmpFloat;
+				AudioListener.volume = myVolume;
 		}
 
 		public void OptionsUpdateGraphics ()
 		{
 				int tmpInt = Mathf.RoundToInt (mySliders [2].value);
-				if (tmpInt < 0)
-						tmpInt = 0;
 
 				myOptionsText [2].text = (myOptionsText [2].name + " : " + names [tmpInt]);
 		}
+
+		public void OptionsUpdateControlType ()
+		{
+				currControls++;
+				if (currControls < 0)
+						currControls = 1;
+				if (currControls > 3)
+						currControls = 1;
+				if (currControls == 1) {
+						myOptionsText [3].text = "Gamepad";
+						EasyPlayerMove.myControlType = EasyPlayerMove.controlType.KeyboardGamepad;
+				}
+				if (currControls == 2) {
+						myOptionsText [3].text = "VR FIX_ME";
+						EasyPlayerMove.myControlType = EasyPlayerMove.controlType.VirtualReality;
+				}
+				if (currControls == 3) {
+						myOptionsText [3].text = "Acclerometer";
+						EasyPlayerMove.myControlType = EasyPlayerMove.controlType.Mobile;
+				}
+		}
+
 		public void SaveAndReturnOptions ()
 		{
-		QualitySettings.SetQualityLevel (Mathf.RoundToInt(mySliders [2].value));
-		PlayerPrefs.SetInt ("qualityLevel", Mathf.RoundToInt(mySliders [2].value));
+				//save our settings and update our quality setting
+				PlayerPrefs.SetInt ("mySensitivity", Mathf.RoundToInt (mySliders [0].value));
+				PlayerPrefs.SetInt ("myVolume", Mathf.RoundToInt (mySliders [1].value));
+				QualitySettings.SetQualityLevel (Mathf.RoundToInt (mySliders [2].value));
+				PlayerPrefs.SetInt ("qualityLevel", Mathf.RoundToInt (mySliders [2].value));
+				PlayerPrefs.SetInt ("ControlType", currControls);
 		}
 
 		public void CloseMainMenu ()
