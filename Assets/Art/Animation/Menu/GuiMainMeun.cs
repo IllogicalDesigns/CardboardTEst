@@ -103,15 +103,15 @@ public class GuiMainMeun : MonoBehaviour
 						currControls = 1;
 				if (currControls == 1) {
 						myOptionsText [3].text = "Gamepad";
-						EasyPlayerMove.myControlType = EasyPlayerMove.controlType.KeyboardGamepad;
+						PlayerMove.myControlType = PlayerMove.controlType.KeyboardGamepad;
 				}
 				if (currControls == 2) {
 						myOptionsText [3].text = "VR FIX_ME";
-						EasyPlayerMove.myControlType = EasyPlayerMove.controlType.VirtualReality;
+						PlayerMove.myControlType = PlayerMove.controlType.VirtualReality;
 				}
 				if (currControls == 3) {
 						myOptionsText [3].text = "Acclerometer";
-						EasyPlayerMove.myControlType = EasyPlayerMove.controlType.Mobile;
+						PlayerMove.myControlType = PlayerMove.controlType.Mobile;
 				}
 		}
 

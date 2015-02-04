@@ -5,7 +5,8 @@ using System.Collections.Generic;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
 
-public class EasyPlayerMove : MonoBehaviour
+[AddComponentMenu("Car Control/Player Car Movement")]
+public class PlayerMove : MonoBehaviour
 {
 		public enum controlType
 		{
@@ -22,11 +23,21 @@ public class EasyPlayerMove : MonoBehaviour
 		public float myCurrentSpeed;
 		public float topSpeed = 10f;
 		public float downPressureFactor = 0.5f;
-		public WheelCollider[] myColliderWheels = new WheelCollider[4]; 				//0LF 1LB 2RF 3RB
-		public Transform[] myVisualWheels = new Transform[4]; 							//0LF 1LB 2RF 3RB
-		public WheelCollider[] myTurnColl = new WheelCollider[2];						//0 == left && 1 == right
-		public Transform[] myTurnWheels = new Transform[2];								//0 == left && 1 == right
-		public WheelCollider[] myEngineWheels = new WheelCollider[2];
+		[Tooltip("The WheelColliders in this order : 0 = LF; 1 = LB; 2 = RF; 3 = RB")]
+		public WheelCollider[]
+				myColliderWheels = new WheelCollider[4]; 				//0LF 1LB 2RF 3RB
+		[Tooltip("The WheelMesh in this order : 0 = LF; 1 = LB; 2 = RF; 3 = RB")]
+		public Transform[]
+				myVisualWheels = new Transform[4]; 							//0LF 1LB 2RF 3RB
+		[Tooltip("The WheelColliders you wish to turn.  The order does not matter.")]
+		public WheelCollider[]
+				myTurnColl = new WheelCollider[2];						//0 == left && 1 == right
+		[Tooltip("The WheelMeshes that you wish to turn. The order must match Turning Colliders.")]
+		public Transform[]
+				myTurnWheels = new Transform[2];								//0 == left && 1 == right
+		[Tooltip("The WheelColliders which will have power applied to them.  The order does not matter.")]
+		public WheelCollider[]
+				myEngineWheels = new WheelCollider[2];
 		private float h;
 		private float v;
 		private float mySteer;
@@ -94,19 +105,31 @@ public class EasyPlayerMove : MonoBehaviour
 				} else 
 						v = 0;
 		}
+
+		//void SetWheelFriction (string typeOfMaterial)	//set Friction values here
+		//{
+				//if (typeOfMaterial == "Road") {
+						//for (int i = 0; i < myColliderWheels.Length; i++) {
+								//myColliderWheels [i].sidewaysFriction.stiffness = 0.05f;
+								//myColliderWheels [i].forwardFriction.stiffness = 1f;
+						//}
+				//}
+		//}
 		// Use this for initialization
 		void Start ()
 		{
 				myEngine = gameObject.GetComponent<AudioSource> ();
 				myEngine.pitch = 1f;
+				myEngine.Play ();
 				sensetivity = GuiMainMeun.mySensitivity;
+				//SetWheelFriction ("Road");
 		}
 		// Update is called once per frame
 		void Update ()
 		{
 				if (myControlType == controlType.VirtualReality) {
 						Application.LoadLevel ("MainMenu");
-						Debug.LogError("VR Controls do not work");
+						Debug.LogError ("VR Controls do not work");
 				}
 				if (myControlType == controlType.KeyboardGamepad) {
 						h = Input.GetAxis ("Horizontal");

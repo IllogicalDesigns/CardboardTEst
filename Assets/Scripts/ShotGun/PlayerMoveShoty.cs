@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class PlayerMove : MonoBehaviour
+public class PlayerMoveShoty : MonoBehaviour
 {
 		public GameObject playerHead;
 		public Transform tarV;
