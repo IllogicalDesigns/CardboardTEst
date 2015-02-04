@@ -8,6 +8,7 @@ public class AiNodeGraph : MonoBehaviour
 		public List<Transform> myNodes = new List<Transform> ();
 		public bool forceShowNodes = false;
 		public bool updateInRealtime = false;
+		private int myNodeCount = 0;
 
 		void OnDrawGizmosSelected ()
 		{
@@ -52,11 +53,16 @@ public class AiNodeGraph : MonoBehaviour
 		// Update is called once per frame
 		void Update ()
 		{
+				myNodeCount = -1;
 				if (updateInRealtime) {
+						myNodes.Clear ();
 						foreach (Transform child in transform) {
-								if (transform.gameObject.tag == "Node")
+								myNodeCount++;
+								if (child.gameObject.tag == "Node") {
 										myNodes.Add (child.gameObject.transform);
-										Debug.Log(child.gameObject.name + " Added to " + this.name);
+										child.gameObject.name = "Node " + myNodeCount;
+										Debug.Log (child.gameObject.name + " Added to " + this.name);
+								}
 						}
 				}
 		}
