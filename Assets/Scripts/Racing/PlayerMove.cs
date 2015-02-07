@@ -17,6 +17,7 @@ public class PlayerMove : MonoBehaviour
 		public static float sensetivity = 2f;
 		public static controlType myControlType;
 		public float myEngineTorque = 10f;
+		public int reverseBrakeAmount = 40;
 		public float myMaxTurnAmount = 50f;
 		public float myMinTurnAmount = 5f;
 		public float highSpeed = 50f;
@@ -42,10 +43,14 @@ public class PlayerMove : MonoBehaviour
 		private float v;
 		private float mySteer;
 		private AudioSource myEngine;
-
+		private Vector3 lastSolidGround;
+		public AiNodeGraph myNodeGraph;
+		float count = 10f;
+	bool isGrounded = false;
+	
 		void DownwardForce ()
 		{
-				bool isGrounded = false;
+				isGrounded = false;
 				for (int i = 0; i < myColliderWheels.Length; i++) {
 						if (myColliderWheels [i].isGrounded) {
 								isGrounded = true;
@@ -108,12 +113,12 @@ public class PlayerMove : MonoBehaviour
 
 		//void SetWheelFriction (string typeOfMaterial)	//set Friction values here
 		//{
-				//if (typeOfMaterial == "Road") {
-						//for (int i = 0; i < myColliderWheels.Length; i++) {
-								//myColliderWheels [i].sidewaysFriction.stiffness = 0.05f;
-								//myColliderWheels [i].forwardFriction.stiffness = 1f;
-						//}
-				//}
+		//if (typeOfMaterial == "Road") {
+		//for (int i = 0; i < myColliderWheels.Length; i++) {
+		//myColliderWheels [i].sidewaysFriction.stiffness = 0.05f;
+		//myColliderWheels [i].forwardFriction.stiffness = 1f;
+		//}
+		//}
 		//}
 		// Use this for initialization
 		void Start ()
@@ -122,6 +127,7 @@ public class PlayerMove : MonoBehaviour
 				myEngine.pitch = 1f;
 				myEngine.Play ();
 				sensetivity = GuiMainMeun.mySensitivity;
+				lastSolidGround = transform.position;
 				//SetWheelFriction ("Road");
 		}
 		// Update is called once per frame
@@ -141,8 +147,16 @@ public class PlayerMove : MonoBehaviour
 				CalculateSpeed ();
 				UpdateVisualWheels ();	
 				AdjustVolumePitch ();
+				if (Input.GetKeyDown (KeyCode.Space))
+						ResetCar ();
+				if (count < 0)
+						ResetCar ();
+				if (!isGrounded)
+						count -= Time.deltaTime;
+				if (count != 10f && isGrounded)
+						count = 10f;
 		}
-
+	
 		void AdjustVolumePitch ()
 		{
 				
@@ -168,9 +182,14 @@ public class PlayerMove : MonoBehaviour
 
 		void EngineTorque ()
 		{
+				int revBrake = 0;
+				if (v < -0.1 && myCurrentSpeed > 0.5f)
+						revBrake = reverseBrakeAmount;
+				else
+						revBrake = 0;
 				if (myCurrentSpeed < topSpeed && myCurrentSpeed > -(topSpeed / 2f)) {
 						for (int i = 0; i < myEngineWheels.Length; i++) {
-								myEngineWheels [i].motorTorque = (myEngineTorque * -v) / myEngineWheels.Length;
+								myEngineWheels [i].motorTorque = ((myEngineTorque + revBrake) * -v) / myEngineWheels.Length;
 						}
 				} else {
 						for (int i = 0; i < myEngineWheels.Length; i++) {
@@ -179,6 +198,22 @@ public class PlayerMove : MonoBehaviour
 				}
 		}
 
+		public void ResetCar ()
+		{
+				count = 10f;
+				rigidbody.velocity = Vector3.zero;
+				foreach (WheelCollider wheelCol in myColliderWheels) {
+						wheelCol.rigidbody.velocity = Vector3.zero;
+				}
+				Transform tempTrans = myNodeGraph.GetClosestWaypoint (transform.position);
+				transform.rotation = Quaternion.identity;
+				transform.position = tempTrans.position;
+				Quaternion targetRot = Quaternion.LookRotation (-tempTrans.position);
+				transform.rotation = targetRot;
+				count = 10f;
+		
+		}
+	
 		void FixedUpdate ()
 		{
 				mySteer = Mathf.Lerp (myMaxTurnAmount, myMinTurnAmount, myCurrentSpeed / highSpeed);
