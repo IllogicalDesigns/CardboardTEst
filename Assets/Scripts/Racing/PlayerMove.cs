@@ -45,7 +45,7 @@ public class PlayerMove : MonoBehaviour
 		private AudioSource myEngine;
 		private Vector3 lastSolidGround;
 		public AiNodeGraph myNodeGraph;
-		float count = 10f;
+		float count = 5f;
 	bool isGrounded = false;
 	
 		void DownwardForce ()
@@ -200,7 +200,7 @@ public class PlayerMove : MonoBehaviour
 
 		public void ResetCar ()
 		{
-				count = 10f;
+				count = 5f;
 				rigidbody.velocity = Vector3.zero;
 				foreach (WheelCollider wheelCol in myColliderWheels) {
 						wheelCol.rigidbody.velocity = Vector3.zero;
@@ -210,7 +210,7 @@ public class PlayerMove : MonoBehaviour
 				transform.position = tempTrans.position;
 				Quaternion targetRot = Quaternion.LookRotation (-tempTrans.position);
 				transform.rotation = targetRot;
-				count = 10f;
+				count = 5f;
 		
 		}
 	

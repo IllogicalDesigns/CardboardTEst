@@ -4,6 +4,9 @@ using System.Collections;
 
 public class GuiMainMeun : MonoBehaviour
 {
+		public Rigidbody myCar;
+		public float myCarEngineForce;
+		public bool isCarIdle = true;
 		public string lvl2Load = "FIX_ME";
 		public Animator[] myMainMenuAnimators;
 		public Canvas[] myMainCanvas;				//Main = 1 //Options = 2 //RaceSetup = 3 //Extras = 4
@@ -41,6 +44,8 @@ public class GuiMainMeun : MonoBehaviour
 				myMainCanvas [0].enabled = true;
 				//set our gameVolume to the right volume
 				AudioListener.volume = myVolume;
+				//start our animations
+				StartCoroutine(carEngineIdle());
 		}
 
 		public void LoadLevel ()
@@ -133,10 +138,20 @@ public class GuiMainMeun : MonoBehaviour
 						tempAnimat.SetTrigger ("CloseMainMenu");
 				}
 		}
+		IEnumerator carEngineIdle()
+		{
+		do {
+						Random.Range(myCarEngineForce - 50, myCarEngineForce + 100);
+						Vector3 tempVec = new Vector3 (myCarEngineForce, 0, 0);
+						yield return new WaitForSeconds (0.1f);
+						myCar.AddRelativeTorque (tempVec);
+						yield return new WaitForSeconds (0.1f);
+						myCar.AddRelativeTorque (-tempVec);
+				} while(isCarIdle);
+		}
 	
 		// Update is called once per frame
 		void Update ()
 		{
-	
 		}
 }
