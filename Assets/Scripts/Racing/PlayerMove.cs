@@ -46,7 +46,8 @@ public class PlayerMove : MonoBehaviour
 		private Vector3 lastSolidGround;
 		public AiNodeGraph myNodeGraph;
 		float count = 5f;
-	bool isGrounded = false;
+		bool isGrounded = false;
+		bool reseting = false;
 	
 		void DownwardForce ()
 		{
@@ -200,17 +201,30 @@ public class PlayerMove : MonoBehaviour
 
 		public void ResetCar ()
 		{
+				reseting = true;
 				count = 5f;
 				rigidbody.velocity = Vector3.zero;
 				foreach (WheelCollider wheelCol in myColliderWheels) {
 						wheelCol.rigidbody.velocity = Vector3.zero;
 				}
 				Transform tempTrans = myNodeGraph.GetClosestWaypoint (transform.position);
-				transform.rotation = Quaternion.identity;
-				transform.position = tempTrans.position;
-				Quaternion targetRot = Quaternion.LookRotation (-tempTrans.position);
-				transform.rotation = targetRot;
+				do {
+						LayerMask mask = -9;
+						RaycastHit hit;
+						if (!Physics.SphereCast (tempTrans.position, myNodeGraph.detectionRange, transform.forward, out hit, 10, mask)) {
+								transform.rotation = tempTrans.rotation;
+								transform.position = tempTrans.position;
+								count = 5f;
+								reseting = false;
+								break;
+						} else {
+				transform.rotation = tempTrans.rotation;
+				transform.position = tempTrans.position + Vector3.up * 5f;
 				count = 5f;
+				reseting = false;
+				break;
+			}
+		} while(reseting);
 		
 		}
 	

@@ -9,6 +9,7 @@ public class AiNodeGraph : MonoBehaviour
 		public List<Transform> mySpeedZones = new List<Transform> ();
 		public bool forceShowNodes = false;
 		public bool updateInRealtime = false;
+		public bool showRotation = false;
 		public float detectionRange = 20f;
 		private int myNodeCount = 0;
 		private int mySpeedCount = 0;
@@ -26,8 +27,13 @@ public class AiNodeGraph : MonoBehaviour
 												tempLastCubeIndex = (myNodes.Count - 1);
 										if (tempLastCubeIndex > myNodes.Count)
 												tempLastCubeIndex = 0;
-										Gizmos.color = Color.green;
+										Gizmos.color = Color.blue;
 										Gizmos.DrawLine (myNodes [tempLastCubeIndex].position, myNodes [i].position);
+										if (showRotation == true) {
+												Gizmos.color = Color.green;
+												Vector3 direction = transform.TransformDirection (-myNodes [i].right) * 5f;
+												Gizmos.DrawRay (myNodes [i].position, direction);
+										}
 								}
 						}
 						for (int i = 0; i < mySpeedZones.Count; i++) {
@@ -50,8 +56,13 @@ public class AiNodeGraph : MonoBehaviour
 												tempLastCubeIndex = (myNodes.Count - 1);
 										if (tempLastCubeIndex > myNodes.Count)
 												tempLastCubeIndex = 0;
-										Gizmos.color = Color.green;
+										Gizmos.color = Color.blue;
 										Gizmos.DrawLine (myNodes [tempLastCubeIndex].position, myNodes [i].position);
+										if (showRotation == true) {
+												Gizmos.color = Color.green;
+												Vector3 direction = transform.TransformDirection (-myNodes [i].right) * 5f;
+												Gizmos.DrawRay (myNodes [i].position, direction);
+										}
 								}
 						}
 						for (int i = 0; i < mySpeedZones.Count; i++) {
@@ -67,6 +78,15 @@ public class AiNodeGraph : MonoBehaviour
 				myNodeCount = -1;
 				mySpeedCount = -1;
 				if (updateInRealtime) {
+						for (int i = 0; i < myNodes.Count; i++) {
+								int tempInt = i + 1;
+								if (tempInt < 0)
+										tempInt = (myNodes.Count - 1);
+								if (tempInt > myNodes.Count)
+										tempInt = 0;
+								//transform.right = (pointYouAreLookingAt - transform.position).normalized;
+								myNodes [i].right = -(myNodes [tempInt].position - myNodes[i].position).normalized;
+						}
 						myNodes.Clear ();
 						mySpeedZones.Clear ();
 						foreach (Transform child in transform) {
