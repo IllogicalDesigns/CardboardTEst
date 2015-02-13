@@ -43,11 +43,9 @@ public class PlayerMove : MonoBehaviour
 		private float v;
 		private float mySteer;
 		private AudioSource myEngine;
-		private Vector3 lastSolidGround;
 		public AiNodeGraph myNodeGraph;
 		float count = 5f;
 		bool isGrounded = false;
-		bool reseting = false;
 	
 		void DownwardForce ()
 		{
@@ -128,7 +126,6 @@ public class PlayerMove : MonoBehaviour
 				myEngine.pitch = 1f;
 				myEngine.Play ();
 				sensetivity = GuiMainMeun.mySensitivity;
-				lastSolidGround = transform.position;
 				//SetWheelFriction ("Road");
 		}
 		// Update is called once per frame
@@ -201,30 +198,23 @@ public class PlayerMove : MonoBehaviour
 
 		public void ResetCar ()
 		{
-				reseting = true;
 				count = 5f;
 				rigidbody.velocity = Vector3.zero;
 				foreach (WheelCollider wheelCol in myColliderWheels) {
 						wheelCol.rigidbody.velocity = Vector3.zero;
 				}
 				Transform tempTrans = myNodeGraph.GetClosestWaypoint (transform.position);
-				do {
 						LayerMask mask = -9;
 						RaycastHit hit;
 						if (!Physics.SphereCast (tempTrans.position, myNodeGraph.detectionRange, transform.forward, out hit, 10, mask)) {
 								transform.rotation = tempTrans.rotation;
 								transform.position = tempTrans.position;
 								count = 5f;
-								reseting = false;
-								break;
 						} else {
 				transform.rotation = tempTrans.rotation;
 				transform.position = tempTrans.position + Vector3.up * 5f;
 				count = 5f;
-				reseting = false;
-				break;
 			}
-		} while(reseting);
 		
 		}
 	

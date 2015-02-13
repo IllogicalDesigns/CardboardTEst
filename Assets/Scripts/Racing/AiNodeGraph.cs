@@ -82,7 +82,7 @@ public class AiNodeGraph : MonoBehaviour
 								int tempInt = i + 1;
 								if (tempInt < 0)
 										tempInt = (myNodes.Count - 1);
-								if (tempInt > myNodes.Count)
+								if (tempInt > myNodes.Count - 1)
 										tempInt = 0;
 								//transform.right = (pointYouAreLookingAt - transform.position).normalized;
 								myNodes [i].right = -(myNodes [tempInt].position - myNodes[i].position).normalized;

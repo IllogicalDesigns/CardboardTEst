@@ -44,10 +44,8 @@ public class AiOpponet : MonoBehaviour
 		private float close2Node = 0;				//this gets set by the node network
 		public int desiredSpeed = 40;
 		public int reverseBrakeAmount = 40;
-		private Vector3 lastSolidGround;
 		bool isGrounded = false;
 		float count = 5f;
-		bool reseting = false;
 
 		// Use this for initialization
 		void Start ()
@@ -59,7 +57,6 @@ public class AiOpponet : MonoBehaviour
 				currentNode = 0;
 				target = myNodeGraph.myNodes [currentNode];
 				close2Node = (myNodeGraph.detectionRange * myNodeGraph.detectionRange);
-				lastSolidGround = transform.position;
 		}
 
 		// Update is called once per frame
@@ -216,7 +213,6 @@ public class AiOpponet : MonoBehaviour
 
 		public void ResetCar ()
 		{
-				reseting = true;
 				count = 5f;
 				rigidbody.velocity = Vector3.zero;
 				foreach (WheelCollider wheelCol in myColliderWheels) {
@@ -226,23 +222,17 @@ public class AiOpponet : MonoBehaviour
 				int newCurrNodeInt = 0;
 				int.TryParse (tempTrans.gameObject.name, out newCurrNodeInt);
 				currentNode = newCurrNodeInt;
-				do {
 						LayerMask mask = -9;
 						RaycastHit hit;
 						if (!Physics.SphereCast (tempTrans.position, myNodeGraph.detectionRange, transform.forward, out hit, 10, mask)) {
 								transform.rotation = tempTrans.rotation;
 								transform.position = tempTrans.position;
 								count = 5f;
-								reseting = false;
-								break;
 						} else {
 								transform.rotation = tempTrans.rotation;
 								transform.position = tempTrans.position + Vector3.up * 2.5f;
 								count = 5f;
-								reseting = false;
-								break;
 						}
-				} while(reseting);
 		
 		}
 }
