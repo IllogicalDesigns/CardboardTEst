@@ -1,9 +1,12 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 [AddComponentMenu("Car Control/Ai Car Movement")]
 public class AiOpponet : MonoBehaviour
 {
+		public Transform testTransform;	
+
 		public enum driveType
 		{
 				Angry,
@@ -40,12 +43,15 @@ public class AiOpponet : MonoBehaviour
 		private AudioSource myEngine;
 		public Transform target;
 		public AiNodeGraph myNodeGraph;
-		public int currentNode = 0;
+		public int myNextNode = 0;
 		private float close2Node = 0;				//this gets set by the node network
 		public int desiredSpeed = 40;
 		public int reverseBrakeAmount = 40;
 		bool isGrounded = false;
 		float count = 5f;
+		public float directionOut = 0;
+		public List<Vector3> PathList = new List<Vector3>();
+		public NodeControl myNodeControl;
 
 		// Use this for initialization
 		void Start ()
@@ -54,14 +60,20 @@ public class AiOpponet : MonoBehaviour
 				myEngine.pitch = 1f;
 				myEngine.Play ();
 				myAngerLevel = driveType.Normal;
-				currentNode = 0;
-				target = myNodeGraph.myNodes [currentNode];
+				myNextNode = 0;
+				target = myNodeGraph.myNodes [myNextNode];
 				close2Node = (myNodeGraph.detectionRange * myNodeGraph.detectionRange);
 		}
 
 		// Update is called once per frame
 		void Update ()
 		{
+				if (Input.GetKeyDown (KeyCode.Space)) {
+						if(testTransform !=null)
+						PathList = myNodeControl.Path (this.transform.position, testTransform.position);
+						else
+						Debug.Log("test is null");
+				}
 				CalculateAiWheelSteering ();
 				CalculateSpeed ();
 				UpdateVisualWheels ();	
@@ -91,17 +103,23 @@ public class AiOpponet : MonoBehaviour
 		
 		void CalculateAiWheelSteering ()
 		{
-				h = Turn2Facing (target.position);
+				directionOfFacing (myNodeGraph.myNodes [myNextNode]);
+				//float tempDirFloat = directionOfFacing (myNodeGraph.myNodes [myNextNode]);//1 == facing, -1 == facing away
+				h = 0;
+				//h = tempDirFloat;
+				//directionOut = tempDirFloat;
 				h = Mathf.Clamp (h, -1, 1);
+				//if ( tempDirFloat < 0f)
+				//Debug.Log ("backwards");
 				if (h > 0.2f)
 						h = 1f;
 				if (h < -0.2f)
 						h = -1f;
 				if (HowCloseAmI (transform.position, target.position) < close2Node) {
-						currentNode ++;
-						if (currentNode > (myNodeGraph.myNodes.Count - 1))
-								currentNode = 0;
-						target = myNodeGraph.myNodes [currentNode];
+						myNextNode ++;
+						if (myNextNode > (myNodeGraph.myNodes.Count - 1))
+								myNextNode = 0;
+						target = myNodeGraph.myNodes [myNextNode];
 				}
 				if (myCurrentSpeed > desiredSpeed) {
 						if (myCurrentSpeed > (desiredSpeed + 10f))
@@ -112,11 +130,21 @@ public class AiOpponet : MonoBehaviour
 						v = 1F;
 				}
 		}
+
+		void directionOfFacing (Transform other)//1 == facing, -1 == facing away
+		{
+				Vector3 forward = transform.TransformDirection (Vector3.forward);
+				Vector3 toOther = other.position - transform.position;
+				directionOut = Vector3.Dot (forward, toOther);
+				if (Vector3.Dot (forward, toOther) < 0)
+						print ("The other transform is behind me!");
+		}
 	
 		float Turn2Facing (Vector3 target)//suggested 0.5f to see if you are within 180 degresses
 		{
 				Vector3 dir = (target - transform.position).normalized;
 				float direction = Vector3.Dot (dir, transform.forward);
+				directionOut = direction;
 				return direction;
 		}
 
@@ -221,18 +249,18 @@ public class AiOpponet : MonoBehaviour
 				Transform tempTrans = myNodeGraph.GetClosestWaypoint (transform.position);
 				int newCurrNodeInt = 0;
 				int.TryParse (tempTrans.gameObject.name, out newCurrNodeInt);
-				currentNode = newCurrNodeInt;
-						LayerMask mask = -9;
-						RaycastHit hit;
-						if (!Physics.SphereCast (tempTrans.position, myNodeGraph.detectionRange, transform.forward, out hit, 10, mask)) {
-								transform.rotation = tempTrans.rotation;
-								transform.position = tempTrans.position;
-								count = 5f;
-						} else {
-								transform.rotation = tempTrans.rotation;
-								transform.position = tempTrans.position + Vector3.up * 2.5f;
-								count = 5f;
-						}
+				myNextNode = newCurrNodeInt;
+				LayerMask mask = -9;
+				RaycastHit hit;
+				if (!Physics.SphereCast (tempTrans.position, myNodeGraph.detectionRange, transform.forward, out hit, 10, mask)) {
+						transform.rotation = tempTrans.rotation;
+						transform.position = tempTrans.position;
+						count = 5f;
+				} else {
+						transform.rotation = tempTrans.rotation;
+						transform.position = tempTrans.position + Vector3.up * 2.5f;
+						count = 5f;
+				}
 		
 		}
 }

@@ -145,7 +145,7 @@ public class PlayerMove : MonoBehaviour
 				CalculateSpeed ();
 				UpdateVisualWheels ();	
 				AdjustVolumePitch ();
-				if (Input.GetKeyDown (KeyCode.Space))
+				if (Input.GetKeyDown (KeyCode.R))
 						ResetCar ();
 				if (count < 0)
 						ResetCar ();

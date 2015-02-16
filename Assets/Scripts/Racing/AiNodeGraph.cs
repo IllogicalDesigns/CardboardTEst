@@ -10,6 +10,7 @@ public class AiNodeGraph : MonoBehaviour
 		public bool forceShowNodes = false;
 		public bool updateInRealtime = false;
 		public bool showRotation = false;
+		public bool isCircle = false;
 		public float detectionRange = 20f;
 		private int myNodeCount = 0;
 		private int mySpeedCount = 0;
@@ -27,8 +28,10 @@ public class AiNodeGraph : MonoBehaviour
 												tempLastCubeIndex = (myNodes.Count - 1);
 										if (tempLastCubeIndex > myNodes.Count)
 												tempLastCubeIndex = 0;
-										Gizmos.color = Color.blue;
-										Gizmos.DrawLine (myNodes [tempLastCubeIndex].position, myNodes [i].position);
+										if (isCircle) {
+												Gizmos.color = Color.blue;
+												Gizmos.DrawLine (myNodes [tempLastCubeIndex].position, myNodes [i].position);
+										}
 										if (showRotation == true) {
 												Gizmos.color = Color.green;
 												Vector3 direction = transform.TransformDirection (-myNodes [i].right) * 5f;
@@ -56,8 +59,10 @@ public class AiNodeGraph : MonoBehaviour
 												tempLastCubeIndex = (myNodes.Count - 1);
 										if (tempLastCubeIndex > myNodes.Count)
 												tempLastCubeIndex = 0;
-										Gizmos.color = Color.blue;
-										Gizmos.DrawLine (myNodes [tempLastCubeIndex].position, myNodes [i].position);
+										if (isCircle) {
+												Gizmos.color = Color.blue;
+												Gizmos.DrawLine (myNodes [tempLastCubeIndex].position, myNodes [i].position);
+										}
 										if (showRotation == true) {
 												Gizmos.color = Color.green;
 												Vector3 direction = transform.TransformDirection (-myNodes [i].right) * 5f;
@@ -85,7 +90,7 @@ public class AiNodeGraph : MonoBehaviour
 								if (tempInt > myNodes.Count - 1)
 										tempInt = 0;
 								//transform.right = (pointYouAreLookingAt - transform.position).normalized;
-								myNodes [i].right = -(myNodes [tempInt].position - myNodes[i].position).normalized;
+								myNodes [i].right = -(myNodes [tempInt].position - myNodes [i].position).normalized;
 						}
 						myNodes.Clear ();
 						mySpeedZones.Clear ();
@@ -104,6 +109,33 @@ public class AiNodeGraph : MonoBehaviour
 										//Debug.Log (child.gameObject.name + " Added to " + this.name);
 								}
 						}
+				}
+		}
+		
+		public List<Transform> getPath (Transform start, Transform end)
+		{
+				//test to see if we can't go from point A to Point B
+				if (Physics.Linecast (start.position, end.position, 9)) {
+						//if true we need to debug out that we can;t 
+						//then we need to path there
+						Debug.DrawLine (start.position, end.position, Color.red, 0.25f);
+						//This Code is here Temporaialy ___________________________________
+						//in this situation there is only 1 point to go to so make a new list
+						List<Transform> tempList = new List<Transform> ();
+						//add that point to the list to go torwards
+						tempList.Add (end);
+						//then we want to return the list
+						return tempList;
+				} else {
+						//if false we need to debug out that we can
+						//then we can go staight there
+						Debug.DrawLine (start.position, end.position, Color.blue, 0.25f);
+						//in this situation there is only 1 point to go to so make a new list
+						List<Transform> tempList = new List<Transform> ();
+						//add that point to the list to go torwards
+						tempList.Add (end);
+						//then we want to return the list
+						return tempList;
 				}
 		}
 
