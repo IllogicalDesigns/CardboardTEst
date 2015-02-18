@@ -46,7 +46,9 @@ public class PlayerMove : MonoBehaviour
 		public AiNodeGraph myNodeGraph;
 		float count = 5f;
 		bool isGrounded = false;
-	
+		private float myDefualtFrictinStiffness = 0f;
+		bool isDrifting = false;
+
 		void DownwardForce ()
 		{
 				isGrounded = false;
@@ -66,11 +68,21 @@ public class PlayerMove : MonoBehaviour
 
 		Vector3 GetWheelPos (WheelCollider myWheelColl, Transform myWheel)
 		{
+				WheelFrictionCurve ff = myColliderWheels [0].forwardFriction;
+				WheelFrictionCurve sf = myColliderWheels [0].sidewaysFriction;
 				RaycastHit hit;
 				if (Physics.Raycast (myWheelColl.transform.position, -myWheelColl.transform.up, out hit, myWheelColl.suspensionDistance + myWheelColl.radius)) {
 						myWheel.position = hit.point + myWheelColl.transform.up * myWheelColl.radius; 
+						ff.stiffness = hit.collider.material.staticFriction * 2f;
+						sf.stiffness = hit.collider.material.staticFriction;
+						myWheelColl.forwardFriction = ff;
+						myWheelColl.sidewaysFriction = sf;
 				} else {
 						myWheel.position = myWheelColl.transform.position - (myWheelColl.transform.up * myWheelColl.suspensionDistance);
+						ff.stiffness = 0f;
+						sf.stiffness = 0f;
+						myWheelColl.forwardFriction = ff;
+						myWheelColl.sidewaysFriction = sf;
 				}
 				return myWheel.position;
 		}
@@ -126,6 +138,7 @@ public class PlayerMove : MonoBehaviour
 				myEngine.pitch = 1f;
 				myEngine.Play ();
 				sensetivity = GuiMainMeun.mySensitivity;
+				myDefualtFrictinStiffness = myColliderWheels [0].sidewaysFriction.stiffness;
 				//SetWheelFriction ("Road");
 		}
 		// Update is called once per frame
@@ -144,7 +157,23 @@ public class PlayerMove : MonoBehaviour
 				}
 				CalculateSpeed ();
 				UpdateVisualWheels ();	
+				if (Input.GetKey (KeyCode.Space)) 
+						isDrifting = true;
+				else 
+						isDrifting = false;
+				if (isDrifting) {
+						WheelFrictionCurve ff = myColliderWheels [0].forwardFriction;
+						WheelFrictionCurve sf = myColliderWheels [0].sidewaysFriction;
+						ff.stiffness = myColliderWheels [1].forwardFriction.stiffness * 0.05f;
+						sf.stiffness = myColliderWheels [3].sidewaysFriction.stiffness * 0.05f;
+						myColliderWheels [1].forwardFriction = ff;
+						myColliderWheels [3].sidewaysFriction = sf;
+				}
 				AdjustVolumePitch ();
+				if (Input.GetKey (KeyCode.Space))
+						Debug.Log ("drifting");
+				else
+						Debug.Log ("drifting");
 				if (Input.GetKeyDown (KeyCode.R))
 						ResetCar ();
 				if (count < 0)
@@ -204,17 +233,17 @@ public class PlayerMove : MonoBehaviour
 						wheelCol.rigidbody.velocity = Vector3.zero;
 				}
 				Transform tempTrans = myNodeGraph.GetClosestWaypoint (transform.position);
-						LayerMask mask = -9;
-						RaycastHit hit;
-						if (!Physics.SphereCast (tempTrans.position, myNodeGraph.detectionRange, transform.forward, out hit, 10, mask)) {
-								transform.rotation = tempTrans.rotation;
-								transform.position = tempTrans.position;
-								count = 5f;
-						} else {
-				transform.rotation = tempTrans.rotation;
-				transform.position = tempTrans.position + Vector3.up * 5f;
-				count = 5f;
-			}
+				LayerMask mask = -9;
+				RaycastHit hit;
+				if (!Physics.SphereCast (tempTrans.position, myNodeGraph.detectionRange, transform.forward, out hit, 10, mask)) {
+						transform.rotation = tempTrans.rotation;
+						transform.position = tempTrans.position;
+						count = 5f;
+				} else {
+						transform.rotation = tempTrans.rotation;
+						transform.position = tempTrans.position + Vector3.up * 5f;
+						count = 5f;
+				}
 		
 		}
 	
