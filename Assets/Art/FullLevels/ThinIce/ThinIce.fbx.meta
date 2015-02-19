@@ -16,6 +16,7 @@ ModelImporter:
     100020: ColliderSnowFloor
     100022: ColliderSnowWalls
     100024: EasyEditMesh
+    100026: Plane.001
     400000: iceWAterfall
     400002: Plane
     400004: Plane.004
@@ -29,6 +30,7 @@ ModelImporter:
     400020: ColliderSnowFloor
     400022: ColliderSnowWalls
     400024: EasyEditMesh
+    400026: Plane.001
     2300000: iceWAterfall
     2300002: Plane
     2300004: Plane.004
@@ -41,6 +43,8 @@ ModelImporter:
     2300018: ColliderSnowFloor
     2300020: ColliderSnowWalls
     2300022: EasyEditMesh
+    2300024: //RootNode
+    2300026: Plane.001
     3300000: iceWAterfall
     3300002: Plane
     3300004: Plane.004
@@ -53,6 +57,8 @@ ModelImporter:
     3300018: ColliderSnowFloor
     3300020: ColliderSnowWalls
     3300022: EasyEditMesh
+    3300024: //RootNode
+    3300026: Plane.001
     4300000: iceWAterfall
     4300002: SnowZigzagRun
     4300004: Plane.006
@@ -65,6 +71,7 @@ ModelImporter:
     4300018: ColliderSnowFloor
     4300020: ColliderSnowWalls
     4300022: EasyEditMesh
+    4300024: Plane.001
     6400000: iceWAterfall
     6400002: Plane
     6400004: Plane.004
@@ -77,6 +84,8 @@ ModelImporter:
     6400018: ColliderSnowFloor
     6400020: ColliderSnowWalls
     6400022: EasyEditMesh
+    6400024: //RootNode
+    6400026: Plane.001
     9500000: //RootNode
   materials:
     importMaterials: 0
@@ -97,7 +106,7 @@ ModelImporter:
     isReadable: 1
   meshes:
     lODScreenPercentages: []
-    globalScale: 8
+    globalScale: 5
     meshCompression: 0
     addColliders: 1
     importBlendShapes: 1

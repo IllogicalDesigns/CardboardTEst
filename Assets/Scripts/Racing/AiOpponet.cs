@@ -50,8 +50,6 @@ public class AiOpponet : MonoBehaviour
 		bool isGrounded = false;
 		float count = 5f;
 		public float directionOut = 0;
-		public List<Vector3> PathList = new List<Vector3>();
-		public NodeControl myNodeControl;
 
 		// Use this for initialization
 		void Start ()
@@ -68,12 +66,6 @@ public class AiOpponet : MonoBehaviour
 		// Update is called once per frame
 		void Update ()
 		{
-				if (Input.GetKeyDown (KeyCode.Space)) {
-						if(testTransform !=null)
-						PathList = myNodeControl.Path (this.transform.position, testTransform.position);
-						else
-						Debug.Log("test is null");
-				}
 				CalculateAiWheelSteering ();
 				CalculateSpeed ();
 				UpdateVisualWheels ();	
@@ -104,17 +96,15 @@ public class AiOpponet : MonoBehaviour
 		void CalculateAiWheelSteering ()
 		{
 				directionOfFacing (myNodeGraph.myNodes [myNextNode]);
-				//float tempDirFloat = directionOfFacing (myNodeGraph.myNodes [myNextNode]);//1 == facing, -1 == facing away
+				float tempDirFloat = Turn2Facing (myNodeGraph.myNodes [myNextNode].position);//1 == facing, -1 == facing away
 				h = 0;
-				//h = tempDirFloat;
-				//directionOut = tempDirFloat;
-				h = Mathf.Clamp (h, -1, 1);
-				//if ( tempDirFloat < 0f)
-				//Debug.Log ("backwards");
-				if (h > 0.2f)
+				h = tempDirFloat;
+				directionOut = tempDirFloat;
+				if (h > 0.1f)
 						h = 1f;
 				if (h < -0.2f)
 						h = -1f;
+				h = Mathf.Clamp (h, -1, 1);
 				if (HowCloseAmI (transform.position, target.position) < close2Node) {
 						myNextNode ++;
 						if (myNextNode > (myNodeGraph.myNodes.Count - 1))
@@ -131,13 +121,12 @@ public class AiOpponet : MonoBehaviour
 				}
 		}
 
-		void directionOfFacing (Transform other)//1 == facing, -1 == facing away
+		float directionOfFacing (Transform other)//1 == facing, -1 == facing away
 		{
 				Vector3 forward = transform.TransformDirection (Vector3.forward);
 				Vector3 toOther = other.position - transform.position;
-				directionOut = Vector3.Dot (forward, toOther);
-				if (Vector3.Dot (forward, toOther) < 0)
-						print ("The other transform is behind me!");
+				directionOut = Vector3.Dot (forward.normalized, toOther.normalized);
+				return Vector3.Dot (forward, toOther);
 		}
 	
 		float Turn2Facing (Vector3 target)//suggested 0.5f to see if you are within 180 degresses
@@ -195,11 +184,21 @@ public class AiOpponet : MonoBehaviour
 
 		Vector3 GetWheelPos (WheelCollider myWheelColl, Transform myWheel)
 		{
+				WheelFrictionCurve ff = myColliderWheels [0].forwardFriction;
+				WheelFrictionCurve sf = myColliderWheels [0].sidewaysFriction;
 				RaycastHit hit;
 				if (Physics.Raycast (myWheelColl.transform.position, -myWheelColl.transform.up, out hit, myWheelColl.suspensionDistance + myWheelColl.radius)) {
 						myWheel.position = hit.point + myWheelColl.transform.up * myWheelColl.radius; 
+						ff.stiffness = hit.collider.material.staticFriction * 2f;
+						sf.stiffness = hit.collider.material.staticFriction;
+						myWheelColl.forwardFriction = ff;
+						myWheelColl.sidewaysFriction = sf;
 				} else {
 						myWheel.position = myWheelColl.transform.position - (myWheelColl.transform.up * myWheelColl.suspensionDistance);
+						ff.stiffness = 0f;
+						sf.stiffness = 0f;
+						myWheelColl.forwardFriction = ff;
+						myWheelColl.sidewaysFriction = sf;
 				}
 				return myWheel.position;
 		}

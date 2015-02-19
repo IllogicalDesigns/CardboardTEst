@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 
 [ExecuteInEditMode]
+[AddComponentMenu("Car Control/Ai Node Graph Control")]
 public class AiNodeGraph : MonoBehaviour
 {
 		public List<Transform> myNodes = new List<Transform> ();
