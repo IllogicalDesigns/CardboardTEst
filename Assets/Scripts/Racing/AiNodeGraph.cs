@@ -10,7 +10,7 @@ public class AiNodeGraph : MonoBehaviour
 		public List<Transform> mySpeedZones = new List<Transform> ();
 		public bool forceShowNodes = false;
 		public bool updateInRealtime = false;
-		public bool showRotation = false;
+		public bool updateRotation = false;
 		public bool isCircle = false;
 		public float detectionRange = 20f;
 		private int myNodeCount = 0;
@@ -33,7 +33,7 @@ public class AiNodeGraph : MonoBehaviour
 												Gizmos.color = Color.blue;
 												Gizmos.DrawLine (myNodes [tempLastCubeIndex].position, myNodes [i].position);
 										}
-										if (showRotation == true) {
+										if (updateRotation == true) {
 												Gizmos.color = Color.green;
 												Vector3 direction = transform.TransformDirection (-myNodes [i].right) * 5f;
 												Gizmos.DrawRay (myNodes [i].position, direction);
@@ -64,7 +64,7 @@ public class AiNodeGraph : MonoBehaviour
 												Gizmos.color = Color.blue;
 												Gizmos.DrawLine (myNodes [tempLastCubeIndex].position, myNodes [i].position);
 										}
-										if (showRotation == true) {
+										if (updateRotation == true) {
 												Gizmos.color = Color.green;
 												Vector3 direction = transform.TransformDirection (-myNodes [i].right) * 5f;
 												Gizmos.DrawRay (myNodes [i].position, direction);
@@ -91,6 +91,7 @@ public class AiNodeGraph : MonoBehaviour
 								if (tempInt > myNodes.Count - 1)
 										tempInt = 0;
 								//transform.right = (pointYouAreLookingAt - transform.position).normalized;
+								if(updateRotation)
 								myNodes [i].right = -(myNodes [tempInt].position - myNodes [i].position).normalized;
 						}
 						myNodes.Clear ();

@@ -17,6 +17,10 @@ ModelImporter:
     100022: ColliderSnowWalls
     100024: EasyEditMesh
     100026: Plane.001
+    100028: Land
+    100030: NurbsCurve
+    100032: Road
+    100034: Cube
     400000: iceWAterfall
     400002: Plane
     400004: Plane.004
@@ -31,6 +35,10 @@ ModelImporter:
     400022: ColliderSnowWalls
     400024: EasyEditMesh
     400026: Plane.001
+    400028: Land
+    400030: NurbsCurve
+    400032: Road
+    400034: Cube
     2300000: iceWAterfall
     2300002: Plane
     2300004: Plane.004
@@ -45,6 +53,10 @@ ModelImporter:
     2300022: EasyEditMesh
     2300024: //RootNode
     2300026: Plane.001
+    2300028: Land
+    2300030: NurbsCurve
+    2300032: Road
+    2300034: Cube
     3300000: iceWAterfall
     3300002: Plane
     3300004: Plane.004
@@ -59,6 +71,10 @@ ModelImporter:
     3300022: EasyEditMesh
     3300024: //RootNode
     3300026: Plane.001
+    3300028: Land
+    3300030: NurbsCurve
+    3300032: Road
+    3300034: Cube
     4300000: iceWAterfall
     4300002: SnowZigzagRun
     4300004: Plane.006
@@ -72,6 +88,9 @@ ModelImporter:
     4300020: ColliderSnowWalls
     4300022: EasyEditMesh
     4300024: Plane.001
+    4300026: Cube
+    4300028: Land
+    4300030: Road
     6400000: iceWAterfall
     6400002: Plane
     6400004: Plane.004
@@ -86,6 +105,10 @@ ModelImporter:
     6400022: EasyEditMesh
     6400024: //RootNode
     6400026: Plane.001
+    6400028: Land
+    6400030: NurbsCurve
+    6400032: Road
+    6400034: Cube
     9500000: //RootNode
   materials:
     importMaterials: 0

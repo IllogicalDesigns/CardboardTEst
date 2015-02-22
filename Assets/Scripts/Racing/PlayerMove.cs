@@ -45,7 +45,7 @@ public class PlayerMove : MonoBehaviour
 		private AudioSource myEngine;
 		public AiNodeGraph myNodeGraph;
 		float count = 5f;
-		bool isGrounded = false;
+		public bool isGrounded = false;
 		private float myDefualtFrictinStiffness = 0f;
 		bool isDrifting = false;
 
@@ -170,10 +170,6 @@ public class PlayerMove : MonoBehaviour
 						myColliderWheels [3].sidewaysFriction = sf;
 				}
 				AdjustVolumePitch ();
-				if (Input.GetKey (KeyCode.Space))
-						Debug.Log ("drifting");
-				else
-						Debug.Log ("drifting");
 				if (Input.GetKeyDown (KeyCode.R))
 						ResetCar ();
 				if (count < 0)
