@@ -12,7 +12,7 @@ public class NoColide : MonoBehaviour
 				//Physics.IgnoreLayerCollision (this.gameObject.layer, layerToMask);
 				foreach (Collider col in collidersToNotCollideWith) {
 						if (col.enabled)
-								Physics.IgnoreCollision (this.collider, col);
+								Physics.IgnoreCollision (this.GetComponent<Collider>(), col);
 				}
 		}
 	

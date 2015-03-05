@@ -16,7 +16,7 @@ public class OcMine : MonoBehaviour
 				foreach (Transform child in transform) {
 						if (child.gameObject.tag == "CullingObject") {
 								//cullingObjects.Add (child.gameObject);
-								cullingObjects [i] = child.gameObject.renderer;
+								cullingObjects [i] = child.gameObject.GetComponent<Renderer>();
 								if (cullingObjects [i].gameObject != null)
 										cullingObjects [i].enabled = false;
 								i++;
@@ -29,7 +29,7 @@ public class OcMine : MonoBehaviour
 				if (other.gameObject.tag == "Player") {
 						foreach (Renderer cullObj in cullingObjects) {
 								if (cullObj.gameObject != null)
-										cullObj.renderer.enabled = true;
+										cullObj.GetComponent<Renderer>().enabled = true;
 						}
 				}
 		}

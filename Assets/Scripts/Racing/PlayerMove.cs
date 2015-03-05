@@ -60,9 +60,9 @@ public class PlayerMove : MonoBehaviour
 				}
 				if (isGrounded) {		
 						Vector3 downPressure = new Vector3 (0f, 0f, 0f);
-						downPressure.y = -Mathf.Pow (rigidbody.velocity.magnitude, 1.2f) * downPressureFactor;
+						downPressure.y = -Mathf.Pow (GetComponent<Rigidbody>().velocity.magnitude, 1.2f) * downPressureFactor;
 						downPressure.y = Mathf.Max (downPressure.y, -70f);
-						rigidbody.AddForce (downPressure, ForceMode.Acceleration);
+						GetComponent<Rigidbody>().AddForce (downPressure, ForceMode.Acceleration);
 				}
 		}
 
@@ -224,9 +224,9 @@ public class PlayerMove : MonoBehaviour
 		public void ResetCar ()
 		{
 				count = 5f;
-				rigidbody.velocity = Vector3.zero;
+				GetComponent<Rigidbody>().velocity = Vector3.zero;
 				foreach (WheelCollider wheelCol in myColliderWheels) {
-						wheelCol.rigidbody.velocity = Vector3.zero;
+						wheelCol.GetComponent<Rigidbody>().velocity = Vector3.zero;
 				}
 				Transform tempTrans = myNodeGraph.GetClosestWaypoint (transform.position);
 				LayerMask mask = -9;
